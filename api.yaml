@@ -1,0 +1,130 @@
+openapi: "3.0.0"
+info:
+  title: Route Search Service
+  description: API for searching routes and user authentication
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Route Search Service API
+
+paths:
+  /auth/register:
+    post:
+      summary: User registration
+      tags:
+        - Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '200':
+          description: Success Registration
+        '400':
+          description: Bad Request
+        '409':
+          description: User with this login already exists
+        '429':
+          description: Too Many Requests
+
+
+  /auth/login:
+    post:
+      summary: User authentication
+      tags:
+        - Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthenticationSuccess'
+        '400':
+          description: Bad Request
+        '401':
+          description: Incorrect login or password
+        '429':
+          description: Too Many Requests
+
+  /route/search:
+    get:
+      summary: Search route
+      tags:
+        - Route Search
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindRouteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RouteSearchSuccess'
+        '400':
+          description: Bad Request
+        '404':
+          description: Route not found
+        '429':
+          description: Too Many Requests
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserCredentials:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
+    FindRouteRequest:
+      type: object
+      properties:
+        route_points:
+          type: array
+          items:
+            type: integer
+      required:
+        - route_points
+    RoutePoint:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+  responses:
+    AuthenticationSuccess:
+      description: Successful Authentication
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+    RouteSearchSuccess:
+      description: Route successfully found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              route:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoutePoint'
