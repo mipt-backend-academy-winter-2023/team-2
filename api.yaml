@@ -90,15 +90,9 @@ paths:
         '200':
           description: Successful operation
           content:
-            #application/json:
-            #  schema:
-            #    type: array
-            #    items:
-            #      type: integer
-            #  example: [[1, "a"], [2, "b"], [3, "c"]]
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Route'
         '403':
           description: Wrong token
         '400':
@@ -130,18 +124,18 @@ components:
         #  example: James
       xml:
         name: user
-
-#  securitySchemes:
-#    petstore_auth:
-#      type: oauth2
-#      flows:
-#        implicit:
-#          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-#          scopes:
-#            write:pets: modify pets in your account
-#            read:pets: read your pets
-#    api_key:
-#      type: apiKey
-#      name: api_key
-#      in: header
+    Route:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "MyPoint"
 

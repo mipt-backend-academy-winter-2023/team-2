@@ -57,12 +57,12 @@ def signUp():
     resp = Response()
     try:
         Users.create(username, password)
-        resp.body = ""
+        resp.set_data("")
         resp.status = 201
     except UsernameExistsException:
-        resp.body = "Wrong password" 
+        resp.set_data("Wrong password")
         resp.status = 400
-    resp.headers['Content-Type'] = 'application/text'
+    resp.headers['Content-Type'] = 'text/plain'
     return resp
 
 @app.route("/api/v3/auth/signin", methods=["GET"])
@@ -70,11 +70,11 @@ def signIn():
     username, password = request.args.get("username"), request.args.get("password")
     resp = Response()
     if not Users.check(username, password):
-        resp.body = ""
+        resp.set_data("")
         resp.status = 403
     else:
         token = Token.getToken(username, password)
-        resp.body = json.dumps({'token': token})
+        resp.set_data(json.dumps({'token': token}))
         resp.status = 200
     resp.headers['Content-Type'] = 'application/json'
     return resp
@@ -82,21 +82,20 @@ def signIn():
 @app.route("/api/v3/route/find", methods=["GET"])
 def findRoute():
     # process request
-    token = request.headers["Authorization"]
+    token = request.headers.get("Authorization", "")
     resp = Response()
     try:
         username, password = Token.getData(token, bearer=True)
         if not Users.check(username, password):
             raise TokenNotValidException()
         ids = request.args.getlist("ids")
-        resp.body = json.dumps({'points': ["qqq" + x for x in ids]})
+        resp.set_data(json.dumps({'points': [{"id": x, "name": username + "_point_" + x} for x in ids]}))
         resp.status = 200
     except TokenNotValidException:
-        resp.body = ""
+        resp.set_data("")
         resp.status = 403
     resp.headers['Content-Type'] = 'application/json'
     resp.headers['Content-Type'] = 'text/plain'
-    print(resp.body)
     return resp
 
 if __name__ == '__main__':
