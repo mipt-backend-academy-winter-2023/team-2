@@ -29,7 +29,6 @@ paths:
         '429':
           description: Too Many Requests
 
-
   /auth/login:
     post:
       summary: User authentication
