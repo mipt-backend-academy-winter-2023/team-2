@@ -68,6 +68,8 @@ paths:
           $ref: '#/components/responses/RouteSearchSuccess'
         '400':
           description: Bad Request
+        '401':
+          description: Token invalid
         '404':
           description: Route not found
         '429':
