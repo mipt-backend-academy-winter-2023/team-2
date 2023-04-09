@@ -95,7 +95,6 @@ def findRoute():
         resp.set_data("")
         resp.status = 403
     resp.headers['Content-Type'] = 'application/json'
-    resp.headers['Content-Type'] = 'text/plain'
     return resp
 
 if __name__ == '__main__':
