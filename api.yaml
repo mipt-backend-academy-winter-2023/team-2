@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: Route Finding API
+  description: Route finding service API documentation
+  contact:
+    email: egorov.ga@phystech.edu
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v3
+
+tags:
+  - name: auth
+    description: Authorization
+  - name: route
+    description: Everything connected with routes
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Registration
+      description: Create user from JSON object.
+      operationId: signUp
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Successful operation
+        '400':
+          description: Username exists
+  /auth/signin:
+    get:
+      tags:
+        - auth
+      summary: Autorization
+      description: Log user into system by username and password.
+      operationId: signIn
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "abc|def"
+        '403':
+          description: Invalid username/password supplied
+  /route/find:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - route
+      summary: Find route
+      description: Find points from ids.
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            minItems: 1
+            example: [1, 2, 3]
+          explode: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            #application/json:
+            #  schema:
+            #    type: array
+            #    items:
+            #      type: integer
+            #  example: [[1, "a"], [2, "b"], [3, "c"]]
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: Wrong token
+        '400':
+          description: Bad request
+      
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        password:
+          type: string
+          example: '12345'
+        #firstName:
+        #  type: string
+        #  example: John
+        #lastName:
+        #  type: string
+        #  example: James
+      xml:
+        name: user
+
+#  securitySchemes:
+#    petstore_auth:
+#      type: oauth2
+#      flows:
+#        implicit:
+#          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+#          scopes:
+#            write:pets: modify pets in your account
+#            read:pets: read your pets
+#    api_key:
+#      type: apiKey
+#      name: api_key
+#      in: header
+
