@@ -1,0 +1,118 @@
+openapi: "3.0.2"
+info:
+  title: Routing service
+  description: project for mipt-Tinkoff Backend course
+  version: "1.0.0"
+  contact:
+    name: Anton Belyi
+    email: anton.8938575@gmail.com
+
+servers:
+  - url: http://localhost:8000 #no project server at this point
+
+tags:
+  - name: auth
+    description: Authentication
+  - name: routing
+    description: Routing
+
+paths:
+  /auth/signup:
+    post:
+      summary: first authentication
+      description: creates user
+      operationId: SignUp
+      parameters:
+        - name: username
+          in: query
+          description: username
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: password
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Created user object        
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: antonis_white
+                password:
+                  type: string
+                  example: abacaba
+      responses:
+        201:
+          description: Successful authentication (profile created)         
+        409:
+          description: Conflict (username is taken)
+	
+  /auth/signin:
+    post:
+      summary: authorization in existing account
+      description: enters profile of user if credentials are correct
+      operationId: SignIn
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful authentication          
+        403:
+          description: Wrong credentials
+	/routing/query:
+    get:
+      tags:
+        - routing
+      summary: get route from list of point ids
+      description: maps ids to route points
+      operationId: RoutingQuery
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            minItems: 1
+            example: [0, 1]
+      responses:
+        200:
+          description: Successful query
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points:
+                    type: array
+                    items:
+                      type: string
+               		  example: park Gorkogo
+        403:
+          description: Missing Authentication Token
+        400:
+          description: Bad request
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
