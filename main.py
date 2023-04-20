@@ -65,9 +65,10 @@ def signUp():
     resp.headers['Content-Type'] = 'text/plain'
     return resp
 
-@app.route("/api/v3/auth/signin", methods=["GET"])
+@app.route("/api/v3/auth/signin", methods=["POST"])
 def signIn():
-    username, password = request.args.get("username"), request.args.get("password")
+    request_data = request.get_json()
+    username, password = request_data["username"], request_data["password"]
     resp = Response()
     if not Users.check(username, password):
         resp.set_data("")

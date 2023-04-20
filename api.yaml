@@ -24,7 +24,7 @@ paths:
       description: Create user from JSON object.
       operationId: signUp
       requestBody:
-        description: Created user object
+        description: User object for creating
         content:
           application/json:
             schema:
@@ -35,25 +35,18 @@ paths:
         '400':
           description: Username exists
   /auth/signin:
-    get:
+    post:
       tags:
         - auth
       summary: Autorization
       description: Log user into system by username and password.
       operationId: signIn
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: true
-          schema:
-            type: string
+      requestBody:
+        description: User object for authorization
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
         '200':
           description: successful operation
@@ -116,12 +109,6 @@ components:
         password:
           type: string
           example: '12345'
-        #firstName:
-        #  type: string
-        #  example: John
-        #lastName:
-        #  type: string
-        #  example: James
       xml:
         name: user
     Route:
