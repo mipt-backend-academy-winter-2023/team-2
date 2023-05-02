@@ -11,7 +11,7 @@ ThisBuild / assemblyMergeStrategy := {
     oldStrategy(x)
 }
 
-assembly / assemblyJarName := "StartApp"
+assembly / assemblyJarName := "StartApp.jar"
 
 assembly  / mainClass := Some("StartApp")
 
