@@ -5,6 +5,8 @@ object V {
   val zioHttp = "0.0.5"
 
   val pureconfig = "0.17.3"
+
+  val pdiJwt = "9.2.0"
 }
 
 
@@ -17,5 +19,9 @@ object Libs {
 
   val pureconfig: List[ModuleID] = List(
     "com.github.pureconfig" %% "pureconfig" % V.pureconfig
+  )
+
+  val pdiJwt: List[ModuleID] = List(
+    "com.github.jwt-scala" %% "jwt-core" % V.pdiJwt
   )
 }
