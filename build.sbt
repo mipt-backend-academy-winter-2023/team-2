@@ -2,7 +2,7 @@ import Dependencies.{Auth, Routing, Helper}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / scalaVersion := "2.13.8"
 
 ThisBuild / assemblyMergeStrategy := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
@@ -11,9 +11,9 @@ ThisBuild / assemblyMergeStrategy := {
     oldStrategy(x)
 }
 
-assembly / assemblyJarName := "StartApp.jar"
-
 assembly  / mainClass := Some("StartApp")
+assembly / assemblyJarName := "StartApp.jar"
+assembly / assemblyOutputPath := baseDirectory.value / "target" / (assembly / assemblyJarName).value
 
 lazy val root = (project in file("."))
   .settings(
