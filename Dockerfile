@@ -10,8 +10,3 @@ COPY --from=build /root/auth/target/scala-2.13/project-auth-assembly-0.1.0-SNAPS
 COPY --from=build /root/routing/target/scala-2.13/project-routing-assembly-0.1.0-SNAPSHOT.jar /opt/app/routing.jar
 COPY --from=build /root/helper/target/scala-2.13/project-helper-assembly-0.1.0-SNAPSHOT.jar /opt/app/helper.jar
 
-#EXPOSE 7777
-#EXPOSE 8081
-#EXPOSE 8082
-#ENTRYPOINT ["java", "-jar", "/opt/app/app.jar"]
-
