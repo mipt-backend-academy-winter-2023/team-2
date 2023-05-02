@@ -11,7 +11,7 @@ ThisBuild / assemblyMergeStrategy := {
     oldStrategy(x)
 }
 
-assembly  / mainClass := Some("StartApp")
+assembly / mainClass := Some("StartApp")
 assembly / assemblyJarName := "StartApp.jar"
 assembly / assemblyOutputPath := baseDirectory.value / "target" / (assembly / assemblyJarName).value
 
