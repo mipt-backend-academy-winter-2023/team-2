@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  auth:
+    build: .
+    ports:
+      - "7777:7777"
+      - "8081:8081"
+      - "8082:8082"
+    entrypoint: ["java", "-jar", "/opt/app/app.jar"]
+
