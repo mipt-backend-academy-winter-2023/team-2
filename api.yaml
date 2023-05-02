@@ -56,13 +56,16 @@ paths:
       tags:
         - Route Search
       security:
-        - BearerAuth: [ ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FindRouteRequest'
+        - bearerAuth: [ ]
+      parameters:
+        - name: route_points
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            minItems: 1
       responses:
         '200':
           $ref: '#/components/responses/RouteSearchSuccess'
@@ -92,15 +95,6 @@ components:
       required:
         - login
         - password
-    FindRouteRequest:
-      type: object
-      properties:
-        route_points:
-          type: array
-          items:
-            type: integer
-      required:
-        - route_points
     RoutePoint:
       type: object
       properties:
