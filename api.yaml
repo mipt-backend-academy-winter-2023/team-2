@@ -7,7 +7,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8000/api/v3
+  - url: http://localhost:8082/
 
 tags:
   - name: auth
