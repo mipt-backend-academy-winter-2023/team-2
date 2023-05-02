@@ -53,7 +53,7 @@ paths:
           description: Successful authentication (profile created)         
         409:
           description: Conflict (username is taken)
-	
+
   /auth/signin:
     post:
       summary: authorization in existing account
@@ -75,7 +75,7 @@ paths:
           description: Successful authentication          
         403:
           description: Wrong credentials
-	/routing/query:
+  /routing/query:
     get:
       tags:
         - routing
@@ -104,7 +104,7 @@ paths:
                     type: array
                     items:
                       type: string
-               		  example: park Gorkogo
+                      example: park Gorkogo
         403:
           description: Missing Authentication Token
         400:
