@@ -4,18 +4,18 @@ import zio.json._
 import zio.http._
 import zio.http.model.{Method, Status}
 
-case class UserReq(name: String, password: String)
+case class UserReq(username: String, password: String)
 
 object UserReq {
   implicit val encoder: JsonEncoder[UserReq] = DeriveJsonEncoder.gen[UserReq]
   implicit val decoder: JsonDecoder[UserReq] = DeriveJsonDecoder.gen[UserReq]
 }
 
-case class TokenReq(token: String)
+case class TokenResp(token: String)
 
-object TokenReq {
-  implicit val encoder: JsonEncoder[TokenReq] = DeriveJsonEncoder.gen[TokenReq]
-  implicit val decoder: JsonDecoder[TokenReq] = DeriveJsonDecoder.gen[TokenReq]
+object TokenResp {
+  implicit val encoder: JsonEncoder[TokenResp] = DeriveJsonEncoder.gen[TokenResp]
+  implicit val decoder: JsonDecoder[TokenResp] = DeriveJsonDecoder.gen[TokenResp]
 }
 
 object HttpRoutes {
@@ -25,7 +25,7 @@ object HttpRoutes {
       req.body.asString.map(body =>
         body.fromJson[UserReq] match {
           case Left(e) => Response.status(Status.Forbidden)
-          case Right(user) => Response.json(TokenReq(user.name + "|" + user.password).toJson)
+          case Right(user) => Response.json(TokenResp(user.username + "|" + user.password).toJson)
         }
       ).orElseFail(Response.status(Status.BadRequest))
     }
