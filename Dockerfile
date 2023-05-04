@@ -1,5 +1,4 @@
-FROM sbtscala/scala-sbt:graalvm-ce-22.3.0-b2-java17_1.8.2_2.13.10 as build
-#FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.5_8_1.8.2_2.13.10 as build
+FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.5_8_1.8.2_2.13.10 as build
 COPY . /root/
 WORKDIR /root
 RUN sbt assembly
