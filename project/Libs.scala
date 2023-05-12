@@ -9,7 +9,6 @@ object V {
   val pureconfig = "0.17.3"
 }
 
-
 object Libs {
 
   val zio: List[ModuleID] = List(
