@@ -11,7 +11,6 @@ object ServiceConfig {
   private val source = ConfigSource.default.at("app").at("routing-service-config")
   private val serviceConfig: ServiceConfig = source.loadOrThrow[ServiceConfig]
 
-  println("route", serviceConfig.port)
   val live: ZLayer[Any, Nothing, ServerConfig] = zio.http.ServerConfig.live {
     http
       .ServerConfig
