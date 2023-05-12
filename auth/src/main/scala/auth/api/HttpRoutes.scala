@@ -2,14 +2,9 @@ package auth.api
 
 import java.time.Clock
 import zio._
-import zio.json._
 import zio.http._
-import zio.ZLogger
-import zio.http.HttpAppMiddleware.basicAuth
-import zio.http.model.{Header, Method, Status}
+import zio.http.model.{Method, Status}
 import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}
-
-
 
 object JwtUtils {
   private val secretKey = "secret-key"
