@@ -32,3 +32,8 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
       execute(query).provideSomeLayer(driverLayer).unit
   }
 }
+
+object UserRepositoryImpl {
+  val live: ZLayer[ConnectionPool, Throwable, UserRepository] = ZLayer.fromFunction(new UserRepositoryImpl(_))
+}
+
