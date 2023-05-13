@@ -12,13 +12,14 @@ object HttpRoutes {
   val app: HttpApp[UserRepository, Response] =
     Http.collectZIO[Request] {
       case req@Method.POST -> !! / "auth" / "signup" =>
+        ZIO.succeed(Response.status(NotImplemented))
+
+      case req@Method.POST -> !! / "auth" / "signin" =>
         UserRepository.findAll().runCollect.map(_.toArray).either.map {
           case Right(users) => Response.json(users.asJson.spaces2)
           case Left(e) => Response.status(InternalServerError)
         }
 
-      case req@Method.POST -> !! / "auth" / "signin" =>
-        ZIO.succeed(Response.status(NotImplemented))
 //        ZIO.succeed(Response.status(NotImplemented))
     }
 }
