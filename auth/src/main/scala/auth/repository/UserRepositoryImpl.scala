@@ -18,7 +18,17 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
   }
 
   override def add(user: User): ZIO[UserRepository, Throwable, Unit] = {
-    findByCredentials(user).runCollect.map(_.toArray).either.map {
+    val query =
+      insertInto(userTable)(username, password)
+        .values(
+          (
+            user.username,
+            user.password
+          )
+        )
+    ZIO.logInfo(s"Query to insert customer is ${renderInsert(query)}") *>
+      execute(query).provideSomeLayer(driverLayer).unit
+    /*findByCredentials(user).runCollect.map(_.toArray).either.map {
       case Right(arr) => arr match {
         case Array() => {
           val query =
@@ -35,7 +45,7 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
         case _ => throw new Exception("User exists")
       }
       case Left(_) => throw new Exception("Error")
-    }
+    }*/
     /*findByCredentials(user).runCollect.map(_.toArray).either.map {
       case Right(_) => throw new Exception("Uh oh@@")
       case Left(_) => throw new Exception("Uh oh!!")
