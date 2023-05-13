@@ -16,6 +16,7 @@ class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
   val flyway: UIO[Flyway] = ZIO.succeed(
     Flyway
       .configure()
+      .baselineOnMigrate(true)
       .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
   ).map(new Flyway(_))
 

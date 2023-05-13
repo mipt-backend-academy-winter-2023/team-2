@@ -5,5 +5,5 @@ CREATE TABLE "users"
     "password" VARCHAR NOT NULL
 );
 
-INSERT INTO "users" (username, password) VALUES ("testusername", "testpassword");
+INSERT INTO "users" (username, password) VALUES ('testusername', 'testpassword');
 
