@@ -10,7 +10,7 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findAll(): ZStream[Any, Throwable, User] = {
-    val selectAll = select(userId, username, password).from(users)
+    val selectAll = select(userId, username, password).from(userTable)
 
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAll is ${renderRead(selectAll)}")
@@ -19,7 +19,7 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
 
   override def add(user: User): ZIO[Any, Throwable, Unit] = {
     val query =
-      insertInto(users)(userId, username, password)
+      insertInto(userTable)(userId, username, password)
         .values(
           (
             user.id,

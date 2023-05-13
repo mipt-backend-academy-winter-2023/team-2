@@ -1,9 +1,9 @@
-CREATE TABLE "users"
+CREATE TABLE "user"
 (
     "id" SERIAL,
     "username" VARCHAR NOT NULL,
     "password" VARCHAR NOT NULL
 );
 
-INSERT INTO "users" (username, password) VALUES ('testusername', 'testpassword');
+INSERT INTO "user" (username, password) VALUES ('testusername', 'testpassword');
 
