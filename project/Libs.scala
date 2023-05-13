@@ -25,7 +25,7 @@ object Libs {
     "com.github.pureconfig" %% "pureconfig" % V.pureconfig
   )
 
-  val circle: List[ModuleID] = List(
+  val circe: List[ModuleID] = List(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser"
