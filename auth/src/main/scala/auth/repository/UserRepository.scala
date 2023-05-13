@@ -5,7 +5,7 @@ import zio.{Task, ZIO}
 import zio.stream.ZStream
 
 trait UserRepository {
-  def findByCredentials(user: User): ZStream[UserRepository, Throwable, User]//ZStream[Any, Throwable, User]
+  def findByCredentials(user: User): ZStream[UserRepository, Throwable, User]
 
   def add(user: User): ZIO[UserRepository, Throwable, Unit]
 }

@@ -9,7 +9,7 @@ import zio.CanFail.canFailAmbiguous1
 import zio._
 import zio.http._
 import zio.http.model._
-import zio.http.model.Status.{BadRequest, Created, InternalServerError, NotImplemented}
+import zio.http.model.Status.{BadRequest, Created, Forbidden, Ok}
 
 object HttpRoutes {
   val app: HttpApp[UserRepository, Response] =
@@ -31,9 +31,13 @@ object HttpRoutes {
           bodyStr <- req.body.asString
           user <- ZIO.fromEither(decode[User](bodyStr)).tapError(e => ZIO.logError(e.getMessage))
           allFound <- UserRepository.findByCredentials(user).runCollect.map(_.toArray)
-          _ <- ZIO.logInfo(s"Created new user $user")
+          _ <- ZIO.logInfo(s"Tried to found $user")
         } yield (allFound)).either.map {
-          case Right(users) => Response.json(users.asJson.spaces2)
+          case Right(users) =>
+            users match {
+              case Array() => Response.status(Forbidden)
+              case htail => Response.json(htail.asJson.spaces2)
+            }
           case Left(_) => Response.status(BadRequest)
         }
 //        ZIO.succeed(Response.status(NotImplemented))
