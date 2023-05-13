@@ -5,12 +5,22 @@ import auth.config.ServiceConfig
 import zio.http.Server
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault, http}
 
+import flyway.flywayAdapter
+import config.Config
+
 object AuthMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
-    zio.http.Server.serve(HttpRoutes.app)
-      .provide(
-        Server.live,
-        ServiceConfig.live,
-      )
+    val server =
+      for {
+        flyway <- ZIO.service[FlywayAdapter.Service]
+        _ <- flyway.migration
+        server <- zio.http.Server.serve(HttpRoutes.app)
+      } yield()
+    server.provide(
+      Server.live,
+      ServiceConfig.live,
+      Config.dbLive,
+      FlywayAdapter.live
+    )
   }
 }
