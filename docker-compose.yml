@@ -4,9 +4,9 @@ services:
   database:
     image: "postgres"
     env_file:
-      - database.env
+      - ./docker-compose/database.env
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
   auth:
@@ -19,11 +19,11 @@ services:
     expose:
       - "8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
-  helper:
-    build: .
-    expose:
-      - "7777"
-    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
+#  helper:
+#    build: .
+#    expose:
+#      - "7777"
+#    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
 
 volumes:
   database-data:
