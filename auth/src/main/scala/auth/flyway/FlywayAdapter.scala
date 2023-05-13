@@ -1,6 +1,6 @@
-package flyway
+package auth.flyway
 
-import config.DbConfig
+import auth.config.DbConfig
 import org.flywaydb.core.Flyway
 import zio.{UIO, ZIO, ZLayer}
 

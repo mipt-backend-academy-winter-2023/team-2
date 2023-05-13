@@ -1,4 +1,4 @@
-package config
+package auth.config
 
 import pureconfig.{ConfigSource, ConfigReader}
 import pureconfig.generic.semiauto.deriveReader

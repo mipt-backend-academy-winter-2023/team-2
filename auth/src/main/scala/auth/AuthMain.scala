@@ -5,7 +5,7 @@ import auth.config.ServiceConfig
 import zio.http.Server
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault, http}
 
-import flyway.flywayAdapter
+import flyway.FlywayAdapter
 import config.Config
 
 object AuthMain extends ZIOAppDefault {
