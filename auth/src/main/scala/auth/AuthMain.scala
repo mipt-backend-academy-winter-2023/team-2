@@ -10,6 +10,12 @@ import config.Config
 
 object AuthMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
+    /*ZIO.service[FlywayAdapter.Service].flatMap(_.migration).provide(
+      Server.live,
+      ServiceConfig.live,
+      Config.dbLive,
+      FlywayAdapter.live
+    )*/
     val server =
       for {
         flyway <- ZIO.service[FlywayAdapter.Service]
