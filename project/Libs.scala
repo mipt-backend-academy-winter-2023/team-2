@@ -7,6 +7,7 @@ object V {
   val zio_sql = "0.1.2"
   val circe_version = "0.14.1"
   val pureconfig = "0.17.3"
+  val pdiJwt = "9.2.6"
 }
 
 object Libs {
@@ -30,4 +31,8 @@ object Libs {
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser"
   ).map(_ % V.circe_version)
+
+  val pdiJwt: List[ModuleID] = List(
+    "com.github.jwt-scala" %% "jwt-core" % V.pdiJwt
+  )
 }
