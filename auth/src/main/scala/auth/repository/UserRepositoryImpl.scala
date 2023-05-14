@@ -1,6 +1,7 @@
 package auth.repository
 
 import auth.model.User
+import auth.security.PasswordEncryptor
 import zio.{ZIO, ZLayer}
 import zio.sql.ConnectionPool
 import zio.stream.ZStream
@@ -10,8 +11,9 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findByCredentials(user: User): ZStream[Any, Throwable, User] = {
-    val selectAll = select(username, password).from(userTable).where(username === user.username && password === user.password)
-
+    val selectAll = select(username, password)
+                      .from(userTable)
+                      .where(username === user.username && password === PasswordEncryptor.encrypt(user.password))
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAll is ${renderRead(selectAll)}")
     ) *> execute(selectAll.to((User.apply _).tupled)).provideSomeLayer(driverLayer)
@@ -26,7 +28,7 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
               .values(
                 (
                   user.username,
-                  user.password
+                  PasswordEncryptor.encrypt(user.password)
                 )
               )
             ZIO.logInfo(s"Query to insert user is ${renderInsert(query)}") *>
