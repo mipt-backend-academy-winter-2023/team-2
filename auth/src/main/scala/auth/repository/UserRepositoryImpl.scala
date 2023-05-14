@@ -1,7 +1,7 @@
 package auth.repository
 
+import auth.utils.PasswordUtils
 import auth.model.User
-import auth.security.PasswordUtils
 import zio.{ZIO, ZLayer}
 import zio.sql.ConnectionPool
 import zio.stream.ZStream

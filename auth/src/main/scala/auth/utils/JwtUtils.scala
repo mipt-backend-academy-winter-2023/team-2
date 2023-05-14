@@ -1,4 +1,4 @@
-package auth.jwt
+package auth.utils
 
 import java.time.Clock
 import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}

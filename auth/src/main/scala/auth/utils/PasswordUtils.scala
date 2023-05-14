@@ -1,9 +1,9 @@
-package auth.security
+package auth.utils
 
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
-import scala.collection.mutable;
+import scala.collection.mutable
 
 object PasswordUtils {
 

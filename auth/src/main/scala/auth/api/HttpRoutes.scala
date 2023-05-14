@@ -1,6 +1,6 @@
 package auth.api
 
-import auth.jwt.JwtUtils
+import auth.utils.JwtUtils
 import io.circe.jawn.decode
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import auth.model.User
