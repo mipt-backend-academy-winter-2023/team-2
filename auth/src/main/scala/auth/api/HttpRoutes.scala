@@ -6,8 +6,8 @@ import auth.model.JsonProtocol._
 import auth.model.User
 import io.circe.jawn.decode
 import io.circe.syntax.EncoderOps
-import zio.CanFail.canFailAmbiguous1
 import zio._
+import zio.CanFail.canFailAmbiguous1
 import zio.http._
 import zio.http.model._
 import zio.http.model.Status.{BadRequest, Created, Forbidden, Ok}
@@ -25,7 +25,6 @@ object HttpRoutes {
           case Right(_) => Response.status(Created)
           case Left(_) => Response.status(BadRequest)
         }
-//        ZIO.succeed(Response.status(NotImplemented))
 
       case req@Method.POST -> !! / "auth" / "signin" =>
         (for {
@@ -43,7 +42,5 @@ object HttpRoutes {
             }
           case Left(_) => Response.status(BadRequest)
         }
-//        ZIO.succeed(Response.status(NotImplemented))
     }
 }
-

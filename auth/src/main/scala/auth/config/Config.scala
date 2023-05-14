@@ -1,11 +1,10 @@
 package auth.config
 
+import java.util.Properties
 import pureconfig.{ConfigSource, ConfigReader}
 import pureconfig.generic.semiauto.deriveReader
 import zio.{ULayer, ZIO, ZLayer}
 import zio.sql.ConnectionPoolConfig
-
-import java.util.Properties // ???
 
 object Config {
   private val basePath = "app"
@@ -37,23 +36,15 @@ object Config {
 
 case class ConfigImpl(
                        dbConfig: DbConfig,
-                       //httpServiceConfig: HttpServerConfig
                      )
 case class DbConfig(
                      url: String,
                      user: String,
                      password: String
                    )
-//case class HttpServerConfigImpl(
-//                       dbConfig: DbConfig,
-//                       httpServiceConfig: HttpServerConfig
-//                     )
 
 object ConfigImpl {
   implicit val configReader: ConfigReader[ConfigImpl] = deriveReader[ConfigImpl]
-  //implicit val configReaderHttpServerConfig: ConfigReader[HttpServerConfig] =
-  //  deriveReader[HttpServerConfig]
-  implicit val configReaderDbConfig: ConfigReader[DbConfig] =
-    deriveReader[DbConfig]
+  implicit val configReaderDbConfig: ConfigReader[DbConfig] = deriveReader[DbConfig]
 }
 
