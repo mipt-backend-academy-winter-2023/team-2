@@ -51,8 +51,8 @@ object HttpRoutes {
               case Array() => Response.status(Forbidden)
               case htail => {
                 //Response.json(htail.head.asJson.spaces2)
+                ZIO.logInfo(s"Signed in ${htail.head}")
                 Response.text(s"{\"token\": \"${JwtUtils.createToken(htail.head.username)}\"}")
-                _ <- ZIO.logInfo(s"Signed in $user")
               }
             }
           case Left(_) => Response.status(BadRequest)

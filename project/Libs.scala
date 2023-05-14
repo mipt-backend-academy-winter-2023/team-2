@@ -7,7 +7,7 @@ object V {
   val zio_sql = "0.1.2"
   val circe_version = "0.14.1"
   val pureconfig = "0.17.3"
-  val pdiJwt = "9.2.6"
+  val pdiJwt = "9.2.0"
 }
 
 object Libs {
