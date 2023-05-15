@@ -19,6 +19,8 @@ tags:
 paths:
   /auth/signup:
     post:
+      tags:
+        - auth
       summary: first authentication
       description: creates user
       operationId: SignUp
@@ -56,6 +58,8 @@ paths:
 
   /auth/signin:
     post:
+      tags:
+        - auth
       summary: authorization in existing account
       description: enters profile of user if credentials are correct
       operationId: SignIn
