@@ -1,6 +1,14 @@
 version: "3.9"
 
 services:
+  database:
+    image: "postgres"
+    env_file:
+      - ./docker-compose/database.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data/
   auth:
     build: .
     expose:
