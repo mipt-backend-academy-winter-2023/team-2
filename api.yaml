@@ -24,21 +24,8 @@ paths:
       summary: first authentication
       description: creates user
       operationId: SignUp
-      parameters:
-        - name: username
-          in: query
-          description: username
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: password
-          required: true
-          schema:
-            type: string
       requestBody:
-        description: Created user object        
+        description: User object for creating
         content:
           application/json:
             schema:
@@ -63,24 +50,36 @@ paths:
       summary: authorization in existing account
       description: enters profile of user if credentials are correct
       operationId: SignIn
-      parameters:
-        - name: username
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          required: true
-          schema:
-            type: string
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: antonis_white
+                password:
+                  type: string
+                  example: abacaba
       responses:
         200:
-          description: Successful authentication          
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "auth token"
         403:
           description: Wrong credentials
   /routing/query:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - routing
       summary: get route from list of point ids
