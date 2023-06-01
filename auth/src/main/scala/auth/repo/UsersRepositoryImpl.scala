@@ -13,7 +13,7 @@ final class UsersRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescr
         ZLayer.succeed(pool)
       )
 
-  private def hash(s: String): String = s
+  private def hash(s: String): String = s.repeat(2)
 
   private def findUsername(userName : String): ZStream[Any, Throwable, User] = {
     val selectUsername = select(username, password)
@@ -21,7 +21,7 @@ final class UsersRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescr
       .where(username === userName)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute find is ${renderRead(selectUsername)}")
+      ZIO.logInfo(s"Found query to execute")
     ) *> execute(selectUsername.to((User.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }
@@ -31,7 +31,7 @@ final class UsersRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescr
       .where(username === user.username && password === hash(user.password))
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute find is ${renderRead(selectUser)}")
+      ZIO.logInfo(s"Found query to execute")
     ) *> execute(selectUser.to((User.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }
@@ -47,7 +47,6 @@ final class UsersRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescr
       )
 
     findUsername(user.username).runCollect.map(_.toArray).either.map {
-      //case Right(Array.empty) => ZIO.fail(new Exception("Username is taken"))
       case Left(_) => ZIO.fail(new Exception("Bad Request"))
       case Right(arr) =>
         if (arr.isEmpty) {

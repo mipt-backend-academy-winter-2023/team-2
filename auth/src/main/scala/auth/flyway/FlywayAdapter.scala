@@ -16,5 +16,5 @@ class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
       .configure()
       .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
   ).map(new Flyway(_))
-  override def migration: UIO[Unit] = ???
+  override def migration: UIO[Unit] = flyway.map(_.migrate())
 }
