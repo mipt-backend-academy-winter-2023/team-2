@@ -24,3 +24,6 @@ services:
     expose:
       - "7777"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
+
+volumes:
+  database-data:
