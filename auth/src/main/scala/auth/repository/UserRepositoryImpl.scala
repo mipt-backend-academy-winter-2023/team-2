@@ -19,8 +19,17 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
     ) *> execute(selectAll.to((User.apply _).tupled)).provideSomeLayer(driverLayer)
   }
 
+  override def findByUsernameOnly(user: User): ZStream[Any, Throwable, User] = {
+    val selectAll = select(username, password)
+                      .from(userTable)
+                      .where(username === user.username)
+    ZStream.fromZIO(
+      ZIO.logInfo(s"Query to execute findByUsernameOnly is ${renderRead(selectAll)}")
+    ) *> execute(selectAll.to((User.apply _).tupled)).provideSomeLayer(driverLayer)
+  }
+
   override def add(user: User): ZIO[UserRepository, Throwable, Unit] = {
-    findByCredentials(user).runCollect.map(_.toArray).either.flatMap {
+    findByUsernameOnly(user).runCollect.map(_.toArray).either.flatMap {
       case Right(arr) => arr match {
         case Array() => {
           val query =
