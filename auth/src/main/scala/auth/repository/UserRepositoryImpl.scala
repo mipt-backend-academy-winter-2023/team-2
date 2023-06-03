@@ -31,7 +31,7 @@ final class UserRepositoryImpl(pool: ConnectionPool) extends PostgresTableDescri
                   PasswordEncryptor.encrypt(user.password)
                 )
               )
-            ZIO.logInfo(s"Query to insert user is ${renderInsert(query)}") *>
+            ZIO.logInfo("Query to insert user") *>
               execute(query).provideSomeLayer(driverLayer).unit
         }
         case _ => ZIO.fail(new Exception("User exists"))
