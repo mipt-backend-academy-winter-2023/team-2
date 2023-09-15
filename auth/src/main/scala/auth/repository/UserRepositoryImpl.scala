@@ -26,8 +26,20 @@ final class UserRepositoryImpl(pool: ConnectionPool)
       .provideSomeLayer(driverLayer)
   }
 
+
+  override def findUserByUsername(user: User): ZStream[Any, Throwable, User] = {
+    val selectAll = select(username, password)
+      .from(users)
+      .where(username === user.username)
+
+    ZStream.fromZIO(
+      ZIO.logInfo(s"Query to execute findUserByUsername is ${renderRead(selectAll)}")
+    ) *> execute(selectAll.to((User.apply _).tupled))
+      .provideSomeLayer(driverLayer)
+  }
+
   override def add(user: User): ZIO[UserRepository, Throwable, Unit] = {
-    findUser(user).runCollect.map(_.toArray).either.flatMap {
+    findUserByUsername(user).runCollect.map(_.toArray).either.flatMap {
       case Right(value) =>
         value match {
           case Array() =>
