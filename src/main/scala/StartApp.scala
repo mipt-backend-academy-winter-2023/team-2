@@ -8,9 +8,9 @@ object StartApp extends ZIOAppDefault {
     for {
       routing <- RoutingMain.run.fork
       auth <- AuthMain.run.fork
-      helper <- HelperMain.run.fork
+//      helper <- HelperMain.run.fork
       _ <- routing.join
       _ <- auth.join
-      _ <- helper.join
+//      _ <- helper.join
     } yield ()
 }
