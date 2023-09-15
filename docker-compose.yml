@@ -3,13 +3,13 @@ version: "3.9"
 services:
   auth:
     build: .
-    expose:
-      - "8082"
+    ports:
+      - "8082:8082"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
   routing:
     build: .
-    expose:
-      - "8081"
+    ports:
+      - "8081:8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
 
   database:
