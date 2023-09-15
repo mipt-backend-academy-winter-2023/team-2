@@ -6,6 +6,8 @@ services:
     expose:
       - "8082"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
+    depends_on:
+      - database
   routing:
     build: .
     expose:
@@ -17,7 +19,7 @@ services:
     env_file:
       - database.env
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
 #  helper:
