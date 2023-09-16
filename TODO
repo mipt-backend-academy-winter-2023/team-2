@@ -1,0 +1,9 @@
+configure database (two tables)
+real migration
+postgis
+
+preload graph at start (including streets distances)
+do things like Astar
+
+rework files locations and project naming and structure
+
