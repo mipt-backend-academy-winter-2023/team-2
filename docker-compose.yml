@@ -27,7 +27,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - database-data:/var/lib/postgresql/data/
+      - database-data:/var/lib/postgresql/routedata/
 #  helper:
 #    build: .
 #    expose:
