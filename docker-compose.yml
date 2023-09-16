@@ -21,7 +21,9 @@ services:
     volumes:
       - database-data:/var/lib/postgresql/data/
   routedatabase:
-    image: "postgres"
+    build:
+      context: .
+      dockerfile: Dockerfile-db
     env_file:
       - routedatabase.env
     ports:

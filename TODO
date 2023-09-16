@@ -1,9 +1,8 @@
 configure database (two tables)
 real migration
-postgis
 
 preload graph at start (including streets distances)
-do things like Astar
+do things like Astar etc
 
 rework files locations and project naming and structure
 

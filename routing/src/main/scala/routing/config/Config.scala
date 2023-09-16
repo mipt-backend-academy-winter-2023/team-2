@@ -8,8 +8,7 @@ import zio.{ULayer, ZIO, ZLayer}
 import java.util.Properties
 
 object Config {
-  private val basePath = "app"
-  private val source = ConfigSource.default.at(basePath)
+  private val source = ConfigSource.default.at("app-routing")
 
   val dbLive: ULayer[DbConfig] = {
     ZLayer.fromZIO(
