@@ -19,10 +19,24 @@ object HttpRoutes {
                 .queryParams
                 .get("fromId")
                 .flatMap(_.headOption)
-            ).tapError(_ => ZIO.logError("not provide ids"))
-            fromId <- ZIO.succeed(fromIdStr.toInt + 2)
-            data <- ZIO.succeed(Graph.get)
-          } yield Response.text(s"finding route for $fromId; and $data")
+            ).tapError(_ => ZIO.logError("Provide fromId argument"))
+            fromId <- ZIO.succeed(fromIdStr.toInt)
+            toIdStr <- ZIO.fromOption(
+              req
+                .url
+                .queryParams
+                .get("toId")
+                .flatMap(_.headOption)
+            ).tapError(_ => ZIO.logError("Provide toId argument"))
+            toId <- ZIO.succeed(toIdStr.toInt)
+            path <- ZIO.succeed(Graph.astar(fromId, toId))
+          } yield Response.text(s"Route from $fromId to $toId: $path")
         response.orElseFail(Response.status(Status.BadRequest))
+      case req@Method.GET -> !! / "debug_graph" =>
+        val response =
+          for {
+            graph <- ZIO.succeed(Graph.debug_graph)
+          } yield Response.text(s"graph for debug: $graph")
+        response
     }
 }
