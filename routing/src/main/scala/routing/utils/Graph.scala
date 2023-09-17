@@ -12,6 +12,20 @@ object Graph {
   private var edges: ArrayBuffer[Edge] = new ArrayBuffer[Edge]()
   private var graph: ArrayBuffer[ListBuffer[Edge]] = new ArrayBuffer[ListBuffer[Edge]]()
 
+  loadGraph
+
+  def loadGraph: ZIO[NodeRepository, Throwable, Unit] = {
+    println("@@@@@@@@@@@ loadGraph")
+    NodeRepository.findAllNodes.runCollect.map(_.toArray).either.flatMap{
+      case Right(arr) => {
+        ZIO.log(arr.length.toString)//foldLeft(""){(x, y) => x + y.name})
+      }
+      case Left(e) => {
+        ZIO.fail(e)
+      }
+    }
+  }
+
   def debug_graph: ArrayBuffer[String] = {
     // return all data from nodes, edges, graph
     var res = edges.map(x => x.label) ++ nodes.map(x => x.name)

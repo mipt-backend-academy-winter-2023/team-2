@@ -9,14 +9,16 @@ import zio.http.Server
 import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 
+import routing.utils.Graph
+
 object RoutingMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     val server =
       for {
         flyway <- ZIO.service[FlywayAdapter.Service]
         _ <- flyway.migration
-        server <- zio.http.Server
-          .serve(HttpRoutes.app)
+        _ <- Graph.loadGraph
+        server <- zio.http.Server.serve(HttpRoutes.app)
       } yield ()
     server.provide(
       Server.live,
