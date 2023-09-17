@@ -10,7 +10,7 @@ trait EdgeRepository {
 
 object EdgeRepository {
   def findAllEdges: ZStream[EdgeRepository, Throwable, Edge] = {
-    println("NodeRepository findAllEdges")
+    println("EdgeRepository findAllEdges")
     ZStream.serviceWithStream[EdgeRepository](_.findAllEdges)
  }
 }

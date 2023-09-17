@@ -4,7 +4,7 @@ import api.HttpRoutes
 import routing.config.ServiceConfig
 import routing.config.Config
 import routing.flyway.FlywayAdapter
-import routing.repository.NodeRepositoryImpl
+import routing.repository.{NodeRepositoryImpl, EdgeRepositoryImpl}
 import zio.http.Server
 import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
@@ -25,7 +25,8 @@ object RoutingMain extends ZIOAppDefault {
       FlywayAdapter.live,
       ConnectionPool.live,
       Config.connectionPoolLive,
-      NodeRepositoryImpl.live
+      NodeRepositoryImpl.live,
+      EdgeRepositoryImpl.live
     )
   }
 }

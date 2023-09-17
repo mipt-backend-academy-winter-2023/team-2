@@ -5,13 +5,13 @@ import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
 
-import routing.model.Node
-import routing.repository.NodeRepository
+//import routing.model.Node
+import routing.repository.{NodeRepository, EdgeRepository}
 import routing.utils.Graph
 
 
 object HttpRoutes {
-  val app: HttpApp[NodeRepository, Response] =
+  val app: HttpApp[NodeRepository with EdgeRepository, Response] =
     Http.collectZIO[Request] {
       case req@Method.GET -> !! / "route" / "find" =>
         (for {
@@ -33,7 +33,7 @@ object HttpRoutes {
           toId <- ZIO.succeed(toIdStr.toInt)
           nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
           _ <- Graph.setNodes(nodes)
-          edges <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
+          edges <- EdgeRepository.findAllEdges.runCollect.map(_.toArray)
           _ <- Graph.setEdges(edges)
           path <- Graph.astar(toId, fromId)
         } yield (path)).either.map {

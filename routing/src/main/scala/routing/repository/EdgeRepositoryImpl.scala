@@ -13,7 +13,7 @@ final class EdgeRepositoryImpl(pool: ConnectionPool)
 
   override def findAllEdges: ZStream[Any, Throwable, Edge] = {
     println("EdgeRepositoryImpl findAllEdges")
-    val selectAll = select(label, fromId, toId)
+    val selectAll = select(label, fromid, toid)
       .from(edges)
       .where(true)
 

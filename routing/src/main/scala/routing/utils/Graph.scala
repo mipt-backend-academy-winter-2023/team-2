@@ -2,18 +2,19 @@ package routing.utils
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ArrayBuffer
-import routing.model.Node
+import routing.model.{Node, Edge}
 import routing.repository.NodeRepository
 
 import zio.ZIO
 
 object Graph {
   private var nodes: ArrayBuffer[Node] = new ArrayBuffer[Node]()
+  private var edges: ArrayBuffer[Edge] = new ArrayBuffer[Edge]()
   private var graph: ArrayBuffer[ListBuffer[Int]] = new ArrayBuffer[ListBuffer[Int]]()
 
   def debug_graph: ArrayBuffer[String] = {
     println("debug_graph()")
-    nodes.map(x => x.name)
+    edges.map(x => x.label)
   }
 
   def setNodes(data: Array[Node]): ZIO[Any, Throwable, String] = {
@@ -25,11 +26,11 @@ object Graph {
     ZIO.succeed("")
   }
 
-  def setEdges(data: Array[Node]): ZIO[Any, Throwable, String] = {
+  def setEdges(data: Array[Edge]): ZIO[Any, Throwable, String] = {
     println("@@@@@")
     data.foreach(x => {
       println(x)
-      //nodes += x
+      edges += x
     })
     ZIO.succeed("")
   }
