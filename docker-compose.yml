@@ -20,11 +20,16 @@ services:
       - "5432:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
-#  helper:
-#    build: .
-#    expose:
-#      - "7777"
-#    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
+
+  routes_db:
+    image: "postgres"
+    env_file:
+      - routes_database.env
+    ports:
+      - "5433:5433"
+    volumes:
+      - database-data:/var/lib/postgresql/data/routes_data/
+
 
 volumes:
   database-data:
