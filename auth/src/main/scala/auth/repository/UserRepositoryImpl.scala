@@ -13,6 +13,7 @@ final class UserRepositoryImpl(pool: ConnectionPool)
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findUser(user: User): ZStream[Any, Throwable, User] = {
+    println("UserRepositoryImpl findUser")
     val selectAll = select(username, password)
       .from(users)
       .where(

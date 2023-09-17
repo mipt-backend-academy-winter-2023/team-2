@@ -11,21 +11,17 @@ final class NodeRepositoryImpl(pool: ConnectionPool)
   val driverLayer: ZLayer[Any, Nothing, SqlDriver] =
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
-  override def findNode(node: Node): ZStream[Any, Throwable, Node] = {
+  override def findAllNodes: ZStream[Any, Throwable, Node] = {
+    println("NodeRepositoryImpl findAllNodes")
     val selectAll = select(category, name, location)
       .from(nodes)
-      .where(
-        category == node.category &&
-        name == node.name &&
-        location == node.location
-      )
+      .where(true)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findNode is ${renderRead(selectAll)}")
+      ZIO.logInfo(s"Query to execute findAllNodes is ${renderRead(selectAll)}")
     ) *> execute(selectAll.to((Node.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }
-
 
   override def findNodeByNodename(node: Node): ZStream[Any, Throwable, Node] = {
     val selectAll = select(category, name, location)
@@ -36,24 +32,6 @@ final class NodeRepositoryImpl(pool: ConnectionPool)
       ZIO.logInfo(s"Query to execute findNodeByNodename is ${renderRead(selectAll)}")
     ) *> execute(selectAll.to((Node.apply _).tupled))
       .provideSomeLayer(driverLayer)
-  }
-
-  override def add(node: Node): ZIO[NodeRepository, Throwable, Unit] = {
-    findNodeByNodename(node).runCollect.map(_.toArray).either.flatMap {
-      case Right(value) =>
-        value match {
-          case Array() =>
-            val query = insertInto(nodes)(category, name, location)
-              .values((node.category, node.name, node.location))
-
-            ZIO.logInfo(s"Query to execute add is ${renderInsert(query)}") *>
-              execute(query)
-                .provideSomeLayer(driverLayer)
-                .unit
-          case _ => ZIO.fail(new Exception("Node already exists"))
-        }
-      case Left(_) => ZIO.fail(new Exception("Adding error"))
-    }
   }
 }
 
