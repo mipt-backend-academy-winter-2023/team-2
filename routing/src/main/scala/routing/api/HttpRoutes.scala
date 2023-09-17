@@ -5,7 +5,6 @@ import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
 
-//import routing.model.Node
 import routing.repository.{NodeRepository, EdgeRepository}
 import routing.utils.Graph
 
@@ -32,9 +31,8 @@ object HttpRoutes {
           ).tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.succeed(toIdStr.toInt)
           nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
-          _ <- Graph.setNodes(nodes)
           edges <- EdgeRepository.findAllEdges.runCollect.map(_.toArray)
-          _ <- Graph.setEdges(edges)
+          _ <- Graph.initGraph(nodes, edges)
           path <- Graph.astar(toId, fromId)
         } yield (path)).either.map {
           case Right(foundPath) => {

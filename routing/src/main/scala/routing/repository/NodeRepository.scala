@@ -12,7 +12,6 @@ trait NodeRepository {
 
 object NodeRepository {
   def findAllNodes: ZStream[NodeRepository, Throwable, Node] = {
-    println("NodeRepository findAllNodes")
     ZStream.serviceWithStream[NodeRepository](_.findAllNodes)
  }
 

@@ -1,3 +1,3 @@
 package routing.model
 
-case class Edge(label: String, fromid: String, toid: String)
+case class Edge(label: String, fromid: Int, toid: Int)

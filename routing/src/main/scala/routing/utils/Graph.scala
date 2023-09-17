@@ -10,34 +10,51 @@ import zio.ZIO
 object Graph {
   private var nodes: ArrayBuffer[Node] = new ArrayBuffer[Node]()
   private var edges: ArrayBuffer[Edge] = new ArrayBuffer[Edge]()
-  private var graph: ArrayBuffer[ListBuffer[Int]] = new ArrayBuffer[ListBuffer[Int]]()
+  private var graph: ArrayBuffer[ListBuffer[Edge]] = new ArrayBuffer[ListBuffer[Edge]]()
 
   def debug_graph: ArrayBuffer[String] = {
-    println("debug_graph()")
-    edges.map(x => x.label)
+    // return all data from nodes, edges, graph
+    var res = edges.map(x => x.label) ++ nodes.map(x => x.name)
+    res += "_"
+    graph.foreach(row => {
+      row.foreach(edge => {
+        res += edge.label
+      })
+      res += "_"
+    })
+    res
   }
 
-  def setNodes(data: Array[Node]): ZIO[Any, Throwable, String] = {
-    println("!!!!!")
-    data.foreach(x => {
-      println(x)
-      nodes += x
+  def initGraph(newNodes: Array[Node], newEdges: Array[Edge]): ZIO[Any, Throwable, String] = {
+    println("!!!!! Graph initGraph !!!!!")
+    // clear data
+    nodes.clear
+    edges.clear
+    graph.clear
+    // load from arguments
+    newNodes.foreach(node => {
+      println(node)
+      nodes += node
     })
-    ZIO.succeed("")
-  }
-
-  def setEdges(data: Array[Edge]): ZIO[Any, Throwable, String] = {
-    println("@@@@@")
-    data.foreach(x => {
-      println(x)
-      edges += x
+    newEdges.foreach(edge => {
+      println(edge)
+      edges += edge
     })
+    // construct graph
+    nodes.foreach(_ => {
+      graph += new ListBuffer[Edge]()
+    })
+    edges.foreach(edge => {
+      graph(edge.fromid - 1) += edge
+      graph(edge.toid - 1) += edge // unoriented graph
+    })
+    // return
     ZIO.succeed("")
   }
 
   def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, ListBuffer[String]] = {
-    var res: ListBuffer[String] = new ListBuffer[String]()
-    println(">>>>>>")
+    // debug
+    /*println(">>>>>>")
     (for {
       nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
     } yield (nodes)).either.map {
@@ -47,8 +64,12 @@ object Graph {
       case Left(_) =>
         println("nah")
     }
-    println("<<<<<<<<")
-    res += (" aaa " + fromId.toString + toId.toString)
+    println("<<<<<<<<")*/
+    // find path
+    var res: ListBuffer[String] = new ListBuffer[String]()
+    res ++= debug_graph
+    res += fromId.toString += toId.toString
+    // return
     ZIO.succeed(res)
   }
 }
