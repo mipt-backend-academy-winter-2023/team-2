@@ -1,6 +1,6 @@
 package routing
 
-import routing.api.HttpRoutes
+import api.HttpRoutes
 import routing.config.ServiceConfig
 import routing.config.Config
 import routing.flyway.FlywayAdapter

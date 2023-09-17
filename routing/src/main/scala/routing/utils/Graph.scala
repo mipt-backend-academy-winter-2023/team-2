@@ -5,36 +5,49 @@ import scala.collection.mutable.ArrayBuffer
 import routing.model.Node
 import routing.repository.NodeRepository
 
+import zio.ZIO
+
 object Graph {
   private var nodes: ArrayBuffer[Node] = new ArrayBuffer[Node]()
-  println("Graph() s")
-  NodeRepository.findAllNodes.runCollect.map(e => {println(e); e.collect(r => {println(r); nodes += r})}) //.foreach(nodes += _) //.run//Runtime.default.unsafeRun(NodeRepository.findAllNodes.runCollect)
-  //NodeRepository.findAllNodes.tap(x => println(s"before mapping: $x"))
-  println(nodes)
-  println(NodeRepository.findAllNodes)
-  println("Graph() e")
-
-  (for {
-    foundUser <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
-  } yield (foundUser)).either.map{
-    case Right(users) =>
-      println(users)
-    case Left(_) =>
-      println("NAH")
-  }
-
-  private var graph: ListBuffer[String] = new ListBuffer[String]()
-  println("WWWWWWWWWWWWWWWWWWWWWWWW")
+  private var graph: ArrayBuffer[ListBuffer[Int]] = new ArrayBuffer[ListBuffer[Int]]()
 
   def debug_graph: ArrayBuffer[String] = {
     println("debug_graph()")
-    //NodeRepository.findAllNodes.tap(x => println(s"before mapping: $x"))
     nodes.map(x => x.name)
   }
 
-  def astar(fromId: Int, toId: Int): ListBuffer[String] = {
+  def setNodes(data: Array[Node]): ZIO[Any, Throwable, String] = {
+    println("!!!!!")
+    data.foreach(x => {
+      println(x)
+      nodes += x
+    })
+    ZIO.succeed("")
+  }
+
+  def setEdges(data: Array[Node]): ZIO[Any, Throwable, String] = {
+    println("@@@@@")
+    data.foreach(x => {
+      println(x)
+      //nodes += x
+    })
+    ZIO.succeed("")
+  }
+
+  def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, ListBuffer[String]] = {
     var res: ListBuffer[String] = new ListBuffer[String]()
-    res += " aaa "
-    res
+    println(">>>>>>")
+    (for {
+      nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
+    } yield (nodes)).either.map {
+      case Right(x) => {
+        println(x)
+      }
+      case Left(_) =>
+        println("nah")
+    }
+    println("<<<<<<<<")
+    res += (" aaa " + fromId.toString + toId.toString)
+    ZIO.succeed(res)
   }
 }

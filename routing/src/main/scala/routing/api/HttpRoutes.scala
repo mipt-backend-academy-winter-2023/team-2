@@ -11,7 +11,7 @@ import routing.utils.Graph
 
 
 object HttpRoutes {
-  val app: HttpApp[Any, Response] =
+  val app: HttpApp[NodeRepository, Response] =
     Http.collectZIO[Request] {
       case req@Method.GET -> !! / "route" / "find" =>
         (for {
@@ -31,14 +31,17 @@ object HttpRoutes {
               .flatMap(_.headOption)
           ).tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.succeed(toIdStr.toInt)
-          _ <- ZIO.logInfo(s"HTTPROUTES - toid $toId fromId $fromId")
-          //path <- ZIO.succeed(Graph.astar(fromId, toId))
-          path <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
-        } yield(path)).either.map {
-          case Right(foundPath) =>
-            1//Response.text(s"Route $foundPath")
+          nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
+          _ <- Graph.setNodes(nodes)
+          edges <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
+          _ <- Graph.setEdges(edges)
+          path <- Graph.astar(toId, fromId)
+        } yield (path)).either.map {
+          case Right(foundPath) => {
+            Response.text(s"Route $foundPath")
+          }
           case Left(_) =>
-            2//Response.text("bad request")
+            Response.text("bad request")
         }
       case req@Method.GET -> !! / "debug_graph" =>
         val response =
