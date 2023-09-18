@@ -1,3 +1,3 @@
 package routing.model
 
-case class Node(category: String, name: String, location: String)
+case class Node(id: Int, category: String, name: String, location: String)

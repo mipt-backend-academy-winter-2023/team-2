@@ -65,10 +65,31 @@ object Graph {
     ZIO.succeed(())
   }
 
-  def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, String] = {
+  def astar(fromid: Integer, toid: Integer): ZIO[Any, Throwable, String] = {
+    // find node with specified id
+    val fromIndex = nodes.foldLeft((-1,0)){(old,value) =>
+      old match {
+        case (oldRes, oldCur) =>
+          if (value.id == fromid) {
+            (oldCur, oldCur + 1)
+          } else {
+            (oldRes, oldCur + 1)
+          }
+      }
+    }._1
+    val toIndex = nodes.foldLeft((-1,0)){(old,value) =>
+      old match {
+        case (oldRes, oldCur) =>
+          if (value.id == toid) {
+            (oldCur, oldCur + 1)
+          } else {
+            (oldRes, oldCur + 1)
+          }
+      }
+    }._1
     // find path
     val path: ListBuffer[Node] = new ListBuffer[Node]()
-    path += nodes(fromId) += nodes(toId)
+    path += nodes(fromIndex) += nodes(toIndex)
     // format as string
     ZIO.succeed(
       path.foldLeft(("Route: ",true)){(old,value) =>

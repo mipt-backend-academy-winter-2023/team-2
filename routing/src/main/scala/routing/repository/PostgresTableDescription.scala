@@ -11,6 +11,6 @@ trait PostgresTableDescription extends PostgresJdbcModule {
   val nodes = defineTable[Node]
   val edges = defineTable[Edge]
 
-  val (category, name, location) = nodes.columns
+  val (id, category, name, location) = nodes.columns
   val (label, fromid, toid, distance) = edges.columns
 }
