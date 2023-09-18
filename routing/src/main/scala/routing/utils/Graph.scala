@@ -1,6 +1,12 @@
 package routing.utils
 
-import scala.collection.mutable.{ListBuffer, ArrayBuffer, Map, PriorityQueue, Set}
+import scala.collection.mutable.{
+  ListBuffer,
+  ArrayBuffer,
+  Map,
+  PriorityQueue,
+  Set
+}
 import routing.model.{Node, Edge}
 import routing.repository.{NodeRepository, EdgeRepository}
 
@@ -15,7 +21,7 @@ object Graph {
   private var graph: ArrayBuffer[ListBuffer[EdgeGraph]] =
     new ArrayBuffer[ListBuffer[EdgeGraph]]()
 
-  class BadNodeIndexException(s: String) extends Exception(s) {}  
+  class BadNodeIndexException(s: String) extends Exception(s) {}
 
   def addNodeToPath(path: String, node: NodeGraph): String =
     if (node.node.category == "0")
@@ -30,8 +36,12 @@ object Graph {
     nodes.clear
     edges.clear
     for {
-      _ <- NodeRepository.findAllNodes.runCollect.map(n => nodes ++= n.toArray[Node])
-      _ <- EdgeRepository.findAllEdges.runCollect.map(e => edges ++= e.toArray[Edge])
+      _ <- NodeRepository.findAllNodes.runCollect.map(n =>
+        nodes ++= n.toArray[Node]
+      )
+      _ <- EdgeRepository.findAllEdges.runCollect.map(e =>
+        edges ++= e.toArray[Edge]
+      )
       _ <- initGraph
     } yield ()
   }
@@ -57,21 +67,23 @@ object Graph {
     edgesForGraph.clear
     graph.clear
     // construct graph
-    nodes.zipWithIndex.foreach{ case (node, i) =>
-        nodesIdToIndex(node.id) = i
+    nodes.zipWithIndex.foreach { case (node, i) =>
+      nodesIdToIndex(node.id) = i
     }
     nodes.foreach(node =>
-        nodesForGraph += NodeGraph(node, nodesIdToIndex(node.id), None, 0, 0)
+      nodesForGraph += NodeGraph(node, nodesIdToIndex(node.id), None, 0, 0)
     )
     edges.foreach(edge =>
-        edgesForGraph += EdgeGraph(edge, nodesIdToIndex(edge.fromid), nodesIdToIndex(edge.toid))
+      edgesForGraph += EdgeGraph(
+        edge,
+        nodesIdToIndex(edge.fromid),
+        nodesIdToIndex(edge.toid)
+      )
     )
-    nodesForGraph.foreach(_ =>
-        graph += new ListBuffer[EdgeGraph]()
-    )
+    nodesForGraph.foreach(_ => graph += new ListBuffer[EdgeGraph]())
     edgesForGraph.foreach(edge => {
-        graph(edge.fromIndex) += edge
-        graph(edge.toIndex) += EdgeGraph(edge.edge, edge.toIndex, edge.fromIndex)
+      graph(edge.fromIndex) += edge
+      graph(edge.toIndex) += EdgeGraph(edge.edge, edge.toIndex, edge.fromIndex)
     })
     // return
     ZIO.succeed(())
@@ -79,58 +91,83 @@ object Graph {
 
   def astar(fromid: Integer, toid: Integer): ZIO[Any, Throwable, String] = {
     // zero all additional data
-    nodesForGraph = nodesForGraph.map{x =>
-      NodeGraph(x.node, x.index, None, Float.PositiveInfinity, Float.PositiveInfinity)
+    nodesForGraph = nodesForGraph.map { x =>
+      NodeGraph(
+        x.node,
+        x.index,
+        None,
+        Float.PositiveInfinity,
+        Float.PositiveInfinity
+      )
     }
     // find node with specified id
     val fromIndex = nodesIdToIndex(fromid)
     val toIndex = nodesIdToIndex(toid)
     // do AStar
     var path = ""
-    var open_set = PriorityQueue.empty[NodeGraph]
-    var closed_set = Set.empty[Int]
-    nodesForGraph(fromIndex) = NodeGraph(nodesForGraph(fromIndex).node, nodesForGraph(fromIndex).index, nodesForGraph(fromIndex).prev, 0, 1) //heuristic(start, goal)
-    open_set enqueue nodesForGraph(fromIndex)
-    while (open_set.length > 0) {
-        // get current node and mark it closed
-        var current = open_set.dequeue
-        closed_set add current.index
-        // if reached end
-        if (current.index == toIndex) {
-            // found finish, restore path
-            path = addNodeToPath(path, current)
-            while (current.prev != None) {
-                current.prev match {
-                    case Some(x) => {
-                        path = addEdgeToPath(path, x)
-                        current = nodesForGraph(x.fromIndex)
-                    }
-                    case None =>
-                }
-                path = addNodeToPath(path, current)
+    var openSet = PriorityQueue.empty[NodeGraph]
+    var closedSet = Set.empty[Int]
+    nodesForGraph(fromIndex) = NodeGraph(
+      nodesForGraph(fromIndex).node,
+      nodesForGraph(fromIndex).index,
+      nodesForGraph(fromIndex).prev,
+      0,
+      1
+    )
+    openSet enqueue nodesForGraph(fromIndex)
+    while (openSet.length > 0) {
+      // get current node and mark it closed
+      var current = openSet.dequeue
+      closedSet add current.index
+      // if reached end
+      if (current.index == toIndex) {
+        // found finish, restore path
+        path = addNodeToPath(path, current)
+        while (current.prev != None) {
+          current.prev match {
+            case Some(x) => {
+              path = addEdgeToPath(path, x)
+              current = nodesForGraph(x.fromIndex)
             }
-            path = s"Route $path"
-            open_set.clear
-        } else {
-            // continue, add neighbours
-            graph(current.index).foreach(neighbour => {
-                var temp_g_score = current.gscore + neighbour.edge.distance
-                if (temp_g_score < nodesForGraph(neighbour.toIndex).gscore){
-                    var nextIndex = nodesForGraph(neighbour.toIndex).index
-                    nodesForGraph(neighbour.toIndex) = NodeGraph(nodesForGraph(neighbour.toIndex).node, nextIndex, Some(neighbour), temp_g_score, temp_g_score + 1) //heuristic(neighbour, goal)
-                    if (!(closed_set contains nextIndex)) {
-                        open_set enqueue nodesForGraph(neighbour.toIndex)
-                    }
-                }
-            })
+            case None =>
+          }
+          path = addNodeToPath(path, current)
         }
+        path = s"Route $path"
+        openSet.clear
+      } else {
+        // continue, add neighbours
+        graph(current.index).foreach(neighbour => {
+          var tempGScore = current.gscore + neighbour.edge.distance
+          if (tempGScore < nodesForGraph(neighbour.toIndex).gscore) {
+            var nextIndex = nodesForGraph(neighbour.toIndex).index
+            nodesForGraph(neighbour.toIndex) = NodeGraph(
+              nodesForGraph(neighbour.toIndex).node,
+              nextIndex,
+              Some(neighbour),
+              tempGScore,
+              tempGScore + 1
+            ) //heuristic(neighbour, goal)
+            if (!(closedSet contains nextIndex)) {
+              openSet enqueue nodesForGraph(neighbour.toIndex)
+            }
+          }
+        })
+      }
     }
     // return
     ZIO.succeed(path)
   }
 
-  case class NodeGraph(node: Node, index: Int, prev: Option[EdgeGraph], gscore: Float, fscore: Float) extends Ordered[NodeGraph] {
-    override def toString: String = s"NodeGraph ($node) ($prev) index: $index gscore: $gscore fscore: $fscore"
+  case class NodeGraph(
+      node: Node,
+      index: Int,
+      prev: Option[EdgeGraph],
+      gscore: Float,
+      fscore: Float
+  ) extends Ordered[NodeGraph] {
+    override def toString: String =
+      s"NodeGraph ($node) ($prev) index: $index gscore: $gscore fscore: $fscore"
     def compare(that: NodeGraph): Int = (fscore - that.fscore).signum
   }
 
