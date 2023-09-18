@@ -17,7 +17,8 @@ class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
     ZIO
       .succeed(
         Flyway
-          .configure().locations(s"classpath:routedb/migration/")
+          .configure()
+          .locations(s"classpath:routedb/migration/")
           .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
       )
       .map(new Flyway(_))
