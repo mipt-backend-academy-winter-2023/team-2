@@ -83,7 +83,7 @@ paths:
           content:
             text/plain:
               example:
-                "Route: House aa - Street bbb - Crossroad c"
+                "Route - House house1 - Edge street3 - Crossroad intersection1"
         '400':
           description:
             Either fromId or toId argument was omitted

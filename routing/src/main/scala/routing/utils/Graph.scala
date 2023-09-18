@@ -30,28 +30,8 @@ object Graph {
     nodes.clear
     edges.clear
     for {
-      _ <- NodeRepository.findAllNodes.runCollect
-        .map(_.toArray)
-        .either
-        .flatMap {
-          case Right(arr) => {
-            ZIO.succeed(nodes ++= arr)
-          }
-          case Left(e) => {
-            ZIO.fail(e)
-          }
-        }
-      _ <- EdgeRepository.findAllEdges.runCollect
-        .map(_.toArray)
-        .either
-        .flatMap {
-          case Right(arr) => {
-            ZIO.succeed(edges ++= arr)
-          }
-          case Left(e) => {
-            ZIO.fail(e)
-          }
-        }
+      _ <- NodeRepository.findAllNodes.runCollect.map(n => nodes ++= n.toArray[Node])
+      _ <- EdgeRepository.findAllEdges.runCollect.map(e => edges ++= e.toArray[Edge])
       _ <- initGraph
     } yield ()
   }
