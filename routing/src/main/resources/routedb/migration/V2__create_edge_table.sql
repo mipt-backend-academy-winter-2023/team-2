@@ -10,7 +10,7 @@ CREATE TABLE "edge"
 CREATE OR REPLACE FUNCTION func_update_distance() RETURNS TRIGGER AS
 $$
 BEGIN
-    NEW.distance = (SELECT id FROM "node" WHERE id = 2);
+    NEW.distance = (SELECT ST_Distance((SELECT location FROM "node" WHERE id = NEW.fromId), (SELECT location FROM "node" WHERE id = NEW.toId)));
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
