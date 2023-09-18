@@ -18,10 +18,7 @@ object Graph {
     for {
       _ <- NodeRepository.findAllNodes.runCollect.map(_.toArray).either.flatMap{
         case Right(arr) => {
-          ZIO.succeed(arr.foreach(node => {
-            println(node)
-            nodes += node
-          }))
+          ZIO.succeed(nodes ++= arr)
         }
         case Left(e) => {
           ZIO.fail(e)
@@ -29,10 +26,7 @@ object Graph {
       }
       _ <- EdgeRepository.findAllEdges.runCollect.map(_.toArray).either.flatMap{
         case Right(arr) => {
-          ZIO.succeed(arr.foreach(edge => {
-            println(edge)
-            edges += edge
-          }))
+          ZIO.succeed(edges ++= arr)
         }
         case Left(e) => {
           ZIO.fail(e)
@@ -42,17 +36,18 @@ object Graph {
     } yield ()
   }
 
-  def debug_graph: ArrayBuffer[String] = {
+  override def toString: String = {
     // return all data from nodes, edges, graph
-    var res = edges.map(x => x.label) ++ nodes.map(x => x.name)
-    res += "_"
-    graph.foreach(row => {
-      row.foreach(edge => {
-        res += edge.label
-      })
-      res += "_"
-    })
-    res
+    "Nodes: " +
+    nodes.foldLeft(""){(old,value) => old + value.toString + " "} +
+    "\nEdges: " +
+    edges.foldLeft(""){(old,value) => old + value.toString + " "} +
+    "\nGraph connections:\n" +
+    graph.foldLeft(""){(oldA,valueA) =>
+      oldA + valueA.foldLeft(""){(old,value) =>
+        old + s"(${value.toid.toString},${value.fromid.toString}) "
+      } + "\n"
+    }
   }
 
   def initGraph: ZIO[Any, Throwable, Unit] = {
@@ -70,12 +65,26 @@ object Graph {
     ZIO.succeed(())
   }
 
-  def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, ListBuffer[String]] = {
+  def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, String] = {
     // find path
-    var res: ListBuffer[String] = new ListBuffer[String]()
-    res ++= debug_graph
-    res += fromId.toString += toId.toString
-    // return
-    ZIO.succeed(res)
+    val path: ListBuffer[Node] = new ListBuffer[Node]()
+    path += nodes(fromId) += nodes(toId)
+    // format as string
+    ZIO.succeed(
+      path.foldLeft(("Route: ",true)){(old,value) =>
+        old match {
+          case (oldStr, oldIsFirst) => {
+            var res = ""
+            if (!oldIsFirst) res += " - "
+            if (value.category == "0") {
+              res += "House "
+            } else {
+               res += "Crossroad " 
+            }
+            (oldStr + res + value.name, false)
+          }
+        }
+      }._1
+    )
   }
 }

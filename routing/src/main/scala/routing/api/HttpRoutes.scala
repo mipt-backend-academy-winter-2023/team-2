@@ -30,22 +30,17 @@ object HttpRoutes {
               .flatMap(_.headOption)
           ).tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.succeed(toIdStr.toInt)
-          /*nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
-          edges <- EdgeRepository.findAllEdges.runCollect.map(_.toArray)
-          _ <- Graph.initGraph(nodes, edges)*/
           path <- Graph.astar(toId, fromId)
         } yield (path)).either.map {
-          case Right(foundPath) => {
-            Response.text(s"Route $foundPath")
+          case Right(route) => {
+            Response.text(route)
           }
           case Left(_) =>
-            Response.text("bad request")
+            Response.status(Status.BadRequest)
         }
       case req@Method.GET -> !! / "debug_graph" =>
-        val response =
-          for {
-            graph <- ZIO.succeed(Graph.debug_graph)
-          } yield Response.text(s"graph for debug: $graph")
-        response
+        for {
+          graph <- ZIO.succeed(Graph.toString)
+        } yield Response.text(graph)
     }
 }

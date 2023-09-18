@@ -12,10 +12,8 @@ final class EdgeRepositoryImpl(pool: ConnectionPool)
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findAllEdges: ZStream[Any, Throwable, Edge] = {
-    println("DEBUG EdgeRepositoryImpl findAllEdges")
     val selectAll = select(label, fromid, toid, distance)
       .from(edges)
-      .where(true)
 
     ZStream.fromZIO(
       ZIO.logInfo(s"Query to execute findAllEdges is ${renderRead(selectAll)}")
