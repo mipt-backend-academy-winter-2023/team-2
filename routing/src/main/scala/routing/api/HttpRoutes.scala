@@ -30,9 +30,9 @@ object HttpRoutes {
               .flatMap(_.headOption)
           ).tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.succeed(toIdStr.toInt)
-          nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
+          /*nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
           edges <- EdgeRepository.findAllEdges.runCollect.map(_.toArray)
-          _ <- Graph.initGraph(nodes, edges)
+          _ <- Graph.initGraph(nodes, edges)*/
           path <- Graph.astar(toId, fromId)
         } yield (path)).either.map {
           case Right(foundPath) => {

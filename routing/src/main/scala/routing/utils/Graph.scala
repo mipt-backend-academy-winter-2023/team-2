@@ -3,7 +3,7 @@ package routing.utils
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ArrayBuffer
 import routing.model.{Node, Edge}
-import routing.repository.NodeRepository
+import routing.repository.{NodeRepository, EdgeRepository}
 
 import zio.ZIO
 
@@ -12,16 +12,34 @@ object Graph {
   private var edges: ArrayBuffer[Edge] = new ArrayBuffer[Edge]()
   private var graph: ArrayBuffer[ListBuffer[Edge]] = new ArrayBuffer[ListBuffer[Edge]]()
 
-  def loadGraph: ZIO[NodeRepository, Throwable, Unit] = {
-    println("@@@@@@@@@@@ loadGraph")
-    NodeRepository.findAllNodes.runCollect.map(_.toArray).either.flatMap{
-      case Right(arr) => {
-        ZIO.log(arr.length.toString)//foldLeft(""){(x, y) => x + y.name})
+  def loadGraph: ZIO[NodeRepository with EdgeRepository, Throwable, Unit] = {
+    nodes.clear
+    edges.clear
+    for {
+      _ <- NodeRepository.findAllNodes.runCollect.map(_.toArray).either.flatMap{
+        case Right(arr) => {
+          ZIO.succeed(arr.foreach(node => {
+            println(node)
+            nodes += node
+          }))
+        }
+        case Left(e) => {
+          ZIO.fail(e)
+        }
       }
-      case Left(e) => {
-        ZIO.fail(e)
+      _ <- EdgeRepository.findAllEdges.runCollect.map(_.toArray).either.flatMap{
+        case Right(arr) => {
+          ZIO.succeed(arr.foreach(edge => {
+            println(edge)
+            edges += edge
+          }))
+        }
+        case Left(e) => {
+          ZIO.fail(e)
+        }
       }
-    }
+      _ <- initGraph
+    } yield ()
   }
 
   def debug_graph: ArrayBuffer[String] = {
@@ -37,21 +55,9 @@ object Graph {
     res
   }
 
-  def initGraph(newNodes: Array[Node], newEdges: Array[Edge]): ZIO[Any, Throwable, String] = {
-    println("!!!!! Graph initGraph !!!!!")
+  def initGraph: ZIO[Any, Throwable, Unit] = {
     // clear data
-    nodes.clear
-    edges.clear
     graph.clear
-    // load from arguments
-    newNodes.foreach(node => {
-      println(node)
-      nodes += node
-    })
-    newEdges.foreach(edge => {
-      println(edge)
-      edges += edge
-    })
     // construct graph
     nodes.foreach(_ => {
       graph += new ListBuffer[Edge]()
@@ -61,22 +67,10 @@ object Graph {
       graph(edge.toid - 1) += edge // unoriented graph
     })
     // return
-    ZIO.succeed("")
+    ZIO.succeed(())
   }
 
   def astar(fromId: Integer, toId: Integer): ZIO[Any, Throwable, ListBuffer[String]] = {
-    // debug
-    /*println(">>>>>>")
-    (for {
-      nodes <- NodeRepository.findAllNodes.runCollect.map(_.toArray)
-    } yield (nodes)).either.map {
-      case Right(x) => {
-        println(x)
-      }
-      case Left(_) =>
-        println("nah")
-    }
-    println("<<<<<<<<")*/
     // find path
     var res: ListBuffer[String] = new ListBuffer[String]()
     res ++= debug_graph
