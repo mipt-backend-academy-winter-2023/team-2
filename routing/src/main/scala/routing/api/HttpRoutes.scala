@@ -20,7 +20,7 @@ object HttpRoutes {
                 .flatMap(_.headOption)
             )
             .tapError(_ => ZIO.logError("Provide fromId argument"))
-          fromId <- ZIO.succeed(fromIdStr.toInt)
+          fromId = fromIdStr.toInt
           toIdStr <- ZIO
             .fromOption(
               req.url.queryParams

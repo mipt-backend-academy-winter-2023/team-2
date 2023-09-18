@@ -34,14 +34,14 @@ object Config {
   }
 }
 
-case class ConfigImpl(
-    dbConfig: DbConfig
-)
-
 case class DbConfig(
     url: String,
     user: String,
     password: String
+)
+
+case class ConfigImpl(
+    dbConfig: DbConfig
 )
 
 object ConfigImpl {
