@@ -12,8 +12,6 @@ object Graph {
   private var edges: ArrayBuffer[Edge] = new ArrayBuffer[Edge]()
   private var graph: ArrayBuffer[ListBuffer[Edge]] = new ArrayBuffer[ListBuffer[Edge]]()
 
-  loadGraph
-
   def loadGraph: ZIO[NodeRepository, Throwable, Unit] = {
     println("@@@@@@@@@@@ loadGraph")
     NodeRepository.findAllNodes.runCollect.map(_.toArray).either.flatMap{

@@ -3,13 +3,19 @@ CREATE TABLE "edge"
     "id"     SERIAL,
     "label"  VARCHAR,
     "fromid" INTEGER,
-    "toid"   INTEGER
+    "toid"   INTEGER,
+    "distance" FLOAT
 );
 
-CREATE TRIGGER update_distance ON edge FOR INSERT AS
+CREATE OR REPLACE FUNCTION func_update_distance() RETURNS TRIGGER AS
+$$
 BEGIN
-    UPDATE edge SET distance = getdate() FROM my_table1 
+    NEW.distance = (SELECT id FROM "node" WHERE id = 2);
+    RETURN NEW;
 END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_distance BEFORE INSERT ON "edge" FOR EACH ROW EXECUTE FUNCTION func_update_distance();
 
 INSERT INTO "edge" (label, fromid, toid)
 VALUES ('street3', 2, 1),
