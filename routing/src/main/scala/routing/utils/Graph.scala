@@ -59,7 +59,7 @@ object Graph {
     })
     edges.foreach(edge => {
       graph(edge.fromid - 1) += edge
-      graph(edge.toid - 1) += edge // unoriented graph
+      graph(edge.toid - 1) += new Edge(edge.label, edge.toid, edge.fromid, edge.distance) // unoriented graph
     })
     // return
     ZIO.succeed(())
@@ -87,6 +87,7 @@ object Graph {
           }
       }
     }._1
+    if (fromIndex == -1 || toIndex == -1) return ZIO.fail("Wrong index")
     // find path
     val path: ListBuffer[Node] = new ListBuffer[Node]()
     path += nodes(fromIndex) += nodes(toIndex)
