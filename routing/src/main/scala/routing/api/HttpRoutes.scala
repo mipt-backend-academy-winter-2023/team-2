@@ -29,7 +29,7 @@ object HttpRoutes {
             )
             .tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.succeed(toIdStr.toInt)
-          path <- Graph.astar(toId, fromId)
+          path <- Graph.astar(fromId, toId)
         } yield (path)).either.map {
           case Right(route) => {
             Response.text(route)
