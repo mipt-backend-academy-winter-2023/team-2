@@ -2,15 +2,30 @@ package auth
 
 import api.HttpRoutes
 import auth.config.ServiceConfig
+import auth.config.Config
+import auth.flyway.FlywayAdapter
+import auth.repository.UserRepositoryImpl
 import zio.http.Server
-import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault, http}
+import zio.sql.ConnectionPool
+import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 
 object AuthMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
-    zio.http.Server.serve(HttpRoutes.app)
-      .provide(
-        Server.live,
-        ServiceConfig.live,
-      )
+    val server =
+      for {
+        flyway <- ZIO.service[FlywayAdapter.Service]
+        _ <- flyway.migration
+        server <- zio.http.Server
+          .serve(HttpRoutes.app)
+      } yield ()
+    server.provide(
+      Server.live,
+      ServiceConfig.live,
+      Config.dbLive,
+      FlywayAdapter.live,
+      ConnectionPool.live,
+      Config.connectionPoolLive,
+      UserRepositoryImpl.live
+    )
   }
 }

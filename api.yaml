@@ -63,7 +63,7 @@ paths:
   /route/find:
     get:
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       tags:
         - route
       summary: Find route
@@ -77,7 +77,7 @@ paths:
             items:
               type: integer
             minItems: 1
-            example: [1, 2, 3]
+            example: [ 1, 2, 3 ]
           explode: true
       responses:
         '200':
@@ -90,7 +90,7 @@ paths:
           description: Wrong token
         '400':
           description: Bad request
-      
+
 
 
 components:
