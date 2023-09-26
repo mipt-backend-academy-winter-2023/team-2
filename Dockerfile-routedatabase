@@ -1,0 +1,5 @@
+FROM postgres:14.1
+
+RUN apt-get update
+
+CMD ["/usr/local/bin/docker-entrypoint.sh","postgres"]
