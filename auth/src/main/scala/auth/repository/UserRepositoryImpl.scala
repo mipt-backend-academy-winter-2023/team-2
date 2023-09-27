@@ -26,14 +26,15 @@ final class UserRepositoryImpl(pool: ConnectionPool)
       .provideSomeLayer(driverLayer)
   }
 
-
   override def findUserByUsername(user: User): ZStream[Any, Throwable, User] = {
     val selectAll = select(username, password)
       .from(users)
       .where(username === user.username)
 
     ZStream.fromZIO(
-      ZIO.logInfo(s"Query to execute findUserByUsername is ${renderRead(selectAll)}")
+      ZIO.logInfo(
+        s"Query to execute findUserByUsername is ${renderRead(selectAll)}"
+      )
     ) *> execute(selectAll.to((User.apply _).tupled))
       .provideSomeLayer(driverLayer)
   }

@@ -33,14 +33,16 @@ object HttpRoutes {
             .fromEither(decode[User](bodyStr))
             .tapError(e => ZIO.logError(e.getMessage))
           foundUser <- UserRepository.findUser(user).runCollect.map(_.toArray)
-        } yield (foundUser)).either.map{
+        } yield (foundUser)).either.map {
           case Right(users) =>
             users match {
               case Array() => Response.status(Status.Forbidden)
               case users =>
                 val user = users.head
                 ZIO.logInfo(s"User $user signed in")
-                Response.text(s"{\"token\": \"${JwtUtils.createToken(user.username)}\"}")
+                Response.text(
+                  s"{'token': '${JwtUtils.createToken(user.username)}'}"
+                )
             }
           case Left(_) => Response.status(BadRequest)
         }
