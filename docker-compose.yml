@@ -24,7 +24,7 @@ services:
   routedatabase:
     build:
       context: .
-      dockerfile: Dockerfile-routes
+      dockerfile: Dockerfile-routedatabase
     env_file:
       - docker-compose/routedatabase.env
     ports:
