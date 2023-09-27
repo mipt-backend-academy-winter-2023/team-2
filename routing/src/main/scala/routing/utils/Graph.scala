@@ -66,7 +66,7 @@ object Graph {
     if (node.is_intersection) {
       s"intersection[id: ${node.id}]"
     } else {
-      s"house[id: ${node.id}, name: ${node.name}]"
+      s"house[id: ${node.id}, name: ${node.house_name}]"
     }
   }
   def edge_info(edge: Edge): String = {

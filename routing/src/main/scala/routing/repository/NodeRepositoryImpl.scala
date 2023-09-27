@@ -12,7 +12,7 @@ final class NodeRepositoryImpl(pool: ConnectionPool)
     ZLayer.make[SqlDriver](SqlDriver.live, ZLayer.succeed(pool))
 
   override def findAllNodes: ZStream[Any, Throwable, Node] = {
-    val selectAll = select(id, is_intersection, name, lat, lon)
+    val selectAll = select(id, is_intersection, house_name, lat, lon)
       .from(nodes)
 
     ZStream.fromZIO(
