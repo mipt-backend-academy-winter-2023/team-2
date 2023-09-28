@@ -11,6 +11,11 @@ services:
     ports:
       - "8081:8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
+  photo:
+    build: .
+    ports:
+      - "8083:8083"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain photo.PhotoMain'"
 
   database:
     image: "postgres"
