@@ -6,16 +6,24 @@ services:
     ports:
       - "8082:8082"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
-  routing:
-    build: .
-    ports:
-      - "8081:8081"
-    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
+
+#  helper:
+#    build: .
+#    expose:
+#      - "7777"
+#    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
+
   photo:
     build: .
     ports:
       - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain photo.PhotoMain'"
+
+  routing:
+    build: .
+    ports:
+      - "8081:8081"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
 
   database:
     image: "postgres"
@@ -25,6 +33,7 @@ services:
       - "5433:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
+
   routedatabase:
     build:
       context: .
@@ -35,11 +44,6 @@ services:
       - "5434:5432"
     volumes:
       - database-data:/var/lib/postgresql/routedata/
-#  helper:
-#    build: .
-#    expose:
-#      - "7777"
-#    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
 
 volumes:
   database-data:

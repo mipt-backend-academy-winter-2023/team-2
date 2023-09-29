@@ -3,10 +3,10 @@ package photo.api
 import io.circe.jawn.decode
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import zio.ZIO
-//import zio._
+import zio._
 //import zio.console._
 //import zio.nio.file._
-import zio.codec.Base64
+//import zio.codec.Base64
 import zio.http._
 import zio.http.model.Status.{Ok, BadRequest, Forbidden}
 import zio.http.model.{Method, Status}
@@ -14,7 +14,7 @@ import zio.stream.ZStream
 
 
 object HttpRoutes {
-  val app: HttpApp[UserRepository, Response] =
+  val app: HttpApp[Any, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "add_photo" =>
         for {
