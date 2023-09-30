@@ -42,17 +42,39 @@ object HttpRoutes {
           case Left(_)  => Response.status(Status.BadRequest)
           case Right(_) => Response(body = data)
         }*/
-      case request @ Method.PUT -> !! / "upload" =>
+/*      case request @ Method.PUT -> !! / "upload" =>
         (for {
           path <- ZIO.attempt(Files.createTempFile("uploaded", null))
           _ <- request.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
         } yield (path)).either.map {
-          case Left(_)  => Response.status(Status.BadRequest)
+          case Left(e)  => Response.text(e.toString)
           case Right(_) => Response(Status.Ok)
         }
-      
+
+      case request @ Method.GET -> !! / "download" =>
+        ZStream.fromPath(Paths.get("uploaded")).runFold("")(_ + _).either.map {
+          case Left(e)  => Response.text(e.toString)
+          case Right(s) => Response.text(s)
+        }*/
+      case request @ Method.PUT -> !! / "upload" =>
+        (for {
+          path <- ZIO.attempt(Files.createFile(Paths.get("uploaded")))
+          _ <- request.body.asStream
+            .via(ZPipeline.deflate())
+            .run(ZSink.fromPath(path))
+        } yield (path)).either.map {
+          case Left(e)  => Response.text(e.toString)
+          case Right(_) => Response(Status.Ok)
+        }
+
+      case request @ Method.GET -> !! / "download" =>
+        ZStream.fromPath(Paths.get("uploaded")).runFold("")(_ + _).either.map {
+          case Left(e)  => Response.text(e.toString)
+          case Right(s) => Response.text(s)
+        }
+
         /*val stream = req.body.asStream
         val data = Body.fromStream(stream)
         Response(body = data)*/
