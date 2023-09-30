@@ -103,7 +103,18 @@ paths:
           content:
             text/plain:
               example:
-                
+                "Nodes: Node(1,0,house1,0101000020E61000000000000000805BC00000000000003E40) Node(2,1,intersection1,0101000020E610000000000000000054C00000000000805140)
+                 Edges: Edge(street3,2,1,4830944.0) Edge(street2,1,2,4830944.0)
+                 Graph connections:
+                 (1,0)
+                 (0,1)"
+  /upload/image:
+    post:
+      tags:
+        - image
+      summary: Upload image
+      description: Upload photo for house or intersection.
+      operationId: uploadImage
 
 components:
   securitySchemes:
