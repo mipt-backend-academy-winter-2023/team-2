@@ -58,9 +58,11 @@ object HttpRoutes {
           case Left(e)  => Response.text(e.toString)
           case Right(s) => Response.text(s)
         }*/
+//          _ <- ZIO.attempt(Files.createNewFile(Paths.get("/tmp/uploaded")))
       case request @ Method.PUT -> !! / "upload" =>
         (for {
-          path <- ZIO.attempt(Files.createFile(Paths.get("uploaded")))
+          _ <- ZIO.attempt(Files.createFile(Paths.get("/tmp/uploaded"))).either.map { case _ => null }
+          path = Paths.get("/tmp/uploaded")
           _ <- request.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
@@ -70,7 +72,7 @@ object HttpRoutes {
         }
 
       case request @ Method.GET -> !! / "download" =>
-        ZStream.fromPath(Paths.get("uploaded")).runFold("")(_ + _).either.map {
+        ZStream.fromPath(Paths.get("/tmp/uploaded")).runFold("")(_ + " | " + _).either.map {
           case Left(e)  => Response.text(e.toString)
           case Right(s) => Response.text(s)
         }
