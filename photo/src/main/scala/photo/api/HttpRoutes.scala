@@ -61,21 +61,40 @@ object HttpRoutes {
 //          _ <- ZIO.attempt(Files.createNewFile(Paths.get("/tmp/uploaded")))
       case request @ Method.PUT -> !! / "upload" =>
         (for {
-          _ <- ZIO.attempt(Files.createFile(Paths.get("/tmp/uploaded"))).either.map { case _ => null }
-          path = Paths.get("/tmp/uploaded")
+          nodeIdStr <- ZIO
+            .fromOption(
+              request.url.queryParams
+                .get("nodeId")
+                .flatMap(_.headOption)
+            )
+            .tapError(_ => ZIO.logError("Provide nodeId argument"))
+          _ <- ZIO.attempt(Files.createFile(Paths.get(s"/tmp/uploaded$nodeIdStr"))).either.map { case _ => null }
+          path = Paths.get(s"/tmp/uploaded$nodeIdStr")
           _ <- request.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
-        } yield (path)).either.map {
+        } yield (path, nodeIdStr)).either.map {
           case Left(e)  => Response.text(e.toString)
           case Right(_) => Response(Status.Ok)
         }
 
       case request @ Method.GET -> !! / "download" =>
-        ZStream.fromPath(Paths.get("/tmp/uploaded")).runFold("")(_ + " | " + _).either.map {
-          case Left(e)  => Response.text(e.toString)
-          case Right(s) => Response.text(s)
-        }
+        (for {
+          nodeIdStr <- ZIO
+            .fromOption(
+              request.url.queryParams
+                .get("nodeId")
+                .flatMap(_.headOption)
+            )
+            .tapError(_ => ZIO.logError("Provide nodeId argument"))
+        } yield (nodeIdStr)).either.map {
+          case Left(e)  => ZIO.succeed(Response.text(e.toString))
+          case Right(nodeIdStr) =>
+            ZStream.fromPath(Paths.get(s"/tmp/uploaded$nodeIdStr")).runFold("")(_ + " | " + _).either.map {
+              case Left(e)  => Response.text(e.toString)
+              case Right(s) => Response.text(s)
+            }
+        }.flatten
 
         /*val stream = req.body.asStream
         val data = Body.fromStream(stream)
