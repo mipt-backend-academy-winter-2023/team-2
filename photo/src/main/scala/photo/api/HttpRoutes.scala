@@ -43,19 +43,22 @@ object HttpRoutes {
           case Right(_) => Response(body = data)
         }*/
       case request @ Method.PUT -> !! / "upload" =>
-        for {
+        (for {
           path <- ZIO.attempt(Files.createTempFile("uploaded", null))
           _ <- request.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
-        } yield Response.ok
+        } yield (path)).either.map {
+          case Left(_)  => Response.status(Status.BadRequest)
+          case Right(_) => Response(Status.Ok)
+        }
       
         /*val stream = req.body.asStream
         val data = Body.fromStream(stream)
         Response(body = data)*/
 //      case _ => Response.text("Invalid route!")
-  }.catchAllCauseZIO { cause =>
+  }/*.catchAllCauseZIO { cause =>
     ZIO.logErrorCause("ERROR", cause).as(Response.status(Status.InternalServerError))
-  }
+  }*/
 }
 
