@@ -11,10 +11,11 @@ jobs:
         uses: actions/checkout@v4
       - name: CreateEnvironment
         run: |
-          pwd
-          ls
+          mkdir docker-compose
           touch docker-compose/database.env
           echo -e "POSTGRES_USER=user\nPOSTGRES_PASSWORD=user\nPOSTGRES_DB=db\n" > docker-compose/database.env
+          touch docker-compose/database.env
+          echo -e "POSTGRES_USER=user\nPOSTGRES_PASSWORD=user\nPOSTGRES_DB=routedb\n" > docker-compose/database.env
       - name: Build Docker
         uses: sudo-bot/action-docker-compose@latest
         with:
