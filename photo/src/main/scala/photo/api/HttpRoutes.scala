@@ -13,10 +13,11 @@ object HttpRoutes {
     Headers
       .apply("Access-Control-Allow-Origin", "http://localhost")
       .combine(
-        Headers.apply("Access-Control-Allow-Credentials", "true")
-        .combine(
-          Headers.apply("Access-Control-Allow-Methods", "GET, PUT")
-        )
+        Headers
+          .apply("Access-Control-Allow-Credentials", "true")
+          .combine(
+            Headers.apply("Access-Control-Allow-Methods", "GET, PUT")
+          )
       )
 
   val app: HttpApp[Any, Nothing] =
@@ -39,8 +40,14 @@ object HttpRoutes {
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
         } yield (nodeIdStr)).either.map {
-          case Left(e)          => Response(status = Status.BadRequest, body = Body.fromString(e.toString), headers = corsHeaders)
-          case Right(nodeIdStr) => Response(body = Body.fromString(nodeIdStr), headers = corsHeaders)
+          case Left(e) =>
+            Response(
+              status = Status.BadRequest,
+              body = Body.fromString(e.toString),
+              headers = corsHeaders
+            )
+          case Right(nodeIdStr) =>
+            Response(body = Body.fromString(nodeIdStr), headers = corsHeaders)
         }
 
       case request @ Method.GET -> !! / "download" =>
@@ -53,7 +60,8 @@ object HttpRoutes {
             )
             .tapError(_ => ZIO.logError("Provide nodeId argument"))
         } yield (nodeIdStr)).either.map {
-          case Left(e) => Response(status = Status.BadRequest, headers = corsHeaders)
+          case Left(e) =>
+            Response(status = Status.BadRequest, headers = corsHeaders)
           case Right(nodeIdStr) =>
             if (Files.exists(Paths.get(s"/uploaded$nodeIdStr"))) {
               Response(
