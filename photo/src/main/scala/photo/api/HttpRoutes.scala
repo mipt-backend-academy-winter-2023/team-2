@@ -55,14 +55,18 @@ object HttpRoutes {
         } yield (nodeIdStr)).either.map {
           case Left(e) => Response(status = Status.BadRequest, headers = corsHeaders)
           case Right(nodeIdStr) =>
-            Response(
-              body = Body.fromStream(
-                ZStream
-                  .fromPath(Paths.get(s"/uploaded$nodeIdStr"))
-                  .via(ZPipeline.inflate())
-              ),
-              headers = corsHeaders
-            )
+            if (Files.exists(Paths.get(s"/uploaded$nodeIdStr"))) {
+              Response(
+                body = Body.fromStream(
+                  ZStream
+                    .fromPath(Paths.get(s"/uploaded$nodeIdStr"))
+                    .via(ZPipeline.inflate())
+                ),
+                headers = corsHeaders
+              )
+            } else {
+              Response(status = Status.BadRequest, headers = corsHeaders)
+            }
         }
     }
 }
