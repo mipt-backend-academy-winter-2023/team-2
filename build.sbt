@@ -1,4 +1,4 @@
-import Dependencies.{Auth, Routing, Helper}
+import Dependencies.{Auth, Routing, Helper, Data}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -35,4 +35,10 @@ lazy val helper = (project in file("helper"))
   .settings(
     name := "project-helper",
     libraryDependencies ++= Helper.dependencies
+  )
+
+lazy val data = (project in file("data"))
+  .settings(
+    name := "project-data",
+    libraryDependencies ++= Data.dependencies
   )
