@@ -14,7 +14,7 @@ object PhotoMain extends ZIOAppDefault {
       } yield ()
     server.provide(
       Server.live,
-      ServiceConfig.live,
+      ServiceConfig.live
     )
   }
 }

@@ -5,7 +5,9 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8000/api/v3
+  - url: http://localhost:8081/
+  - url: http://localhost:8082/
+  - url: http://localhost:8083/
 
 tags:
   - name: auth
@@ -108,13 +110,46 @@ paths:
                  Graph connections:
                  (1,0)
                  (0,1)"
-  /upload/image:
-    post:
+  /upload:
+    put:
       tags:
         - image
       summary: Upload image
       description: Upload photo for house or intersection.
-      operationId: uploadImage
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      parameters:
+        - name: nodeId
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Successfull operation
+  /download:
+    get:
+      summary: Get the logo image
+      parameters:
+        - name: nodeId
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Logo image in PNG format
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
 
 components:
   securitySchemes:
