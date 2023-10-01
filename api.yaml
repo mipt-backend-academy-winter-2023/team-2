@@ -146,10 +146,12 @@ paths:
         '200':
           description: Logo image in PNG format
           content:
-            image/png:
+            image/jpeg:
               schema:
                 type: string
                 format: binary
+        '404':
+          description: Image with this id has not been found
 
 components:
   securitySchemes:
