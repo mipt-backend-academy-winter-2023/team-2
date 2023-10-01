@@ -18,6 +18,8 @@ services:
     ports:
       - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain photo.PhotoMain'"
+    volumes:
+      - database-data:/var/lib/tmp/
 
   routing:
     build: .

@@ -90,7 +90,7 @@ object HttpRoutes {
         } yield (nodeIdStr)).either.map {
           case Left(e)  => ZIO.succeed(Response.text(e.toString))
           case Right(nodeIdStr) =>
-            ZStream.fromPath(Paths.get(s"/tmp/uploaded$nodeIdStr")).runFold("")(_ + _).either.map {
+            ZStream.fromPath(Paths.get(s"/tmp/uploaded$nodeIdStr")).via(ZPipeline.inflate()).runFold(""){(x,y) => {println(y); println(y.getClass); x + y}}.either.map {
               case Left(e)  => Response.text(e.toString)
               case Right(s) => Response.text(s)
             }
