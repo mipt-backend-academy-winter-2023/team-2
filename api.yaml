@@ -16,6 +16,63 @@ tags:
     description: Everything connected with routes
 
 paths:
+  /upload/{node_id}:
+    post:
+      summary: Upload a JPEG image to the specified location
+      description: Uploads a single JPEG image to the specified node such as a house or intersection.
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: The identifier of the node
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+              maxLength: 10485760
+      responses:
+        '200':
+          description: Successfully uploaded the image
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        '400':
+          description: Invalid request - Image is not a valid JPEG format or exceeds the 10MB size limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid image format or size
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: An error occurred while processing the image upload
+
   /auth/signup:
     post:
       tags:
