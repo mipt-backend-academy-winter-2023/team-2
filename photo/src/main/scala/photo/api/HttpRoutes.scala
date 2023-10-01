@@ -9,6 +9,16 @@ import zio.http.model.{Method, Status, Header, Headers}
 import zio.stream.{ZSink, ZStream, ZPipeline}
 
 object HttpRoutes {
+  val corsHeaders =
+    Headers
+      .apply("Access-Control-Allow-Origin", "http://localhost")
+      .combine(
+        Headers.apply("Access-Control-Allow-Credentials", "true")
+        .combine(
+          Headers.apply("Access-Control-Allow-Methods", "GET, PUT")
+        )
+      )
+
   val app: HttpApp[Any, Nothing] =
     Http.collectZIO[Request] {
       case request @ Method.PUT -> !! / "upload" =>
@@ -29,8 +39,8 @@ object HttpRoutes {
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
         } yield (nodeIdStr)).either.map {
-          case Left(e)          => Response.status(Status.BadRequest)
-          case Right(nodeIdStr) => Response.text(nodeIdStr)
+          case Left(e)          => Response(status = Status.BadRequest, body = Body.fromString(e.toString), headers = corsHeaders)
+          case Right(nodeIdStr) => Response(body = Body.fromString(nodeIdStr), headers = corsHeaders)
         }
 
       case request @ Method.GET -> !! / "download" =>
@@ -43,7 +53,7 @@ object HttpRoutes {
             )
             .tapError(_ => ZIO.logError("Provide nodeId argument"))
         } yield (nodeIdStr)).either.map {
-          case Left(e) => Response.status(Status.BadRequest)
+          case Left(e) => Response(status = Status.BadRequest, headers = corsHeaders)
           case Right(nodeIdStr) =>
             Response(
               body = Body.fromStream(
@@ -51,13 +61,7 @@ object HttpRoutes {
                   .fromPath(Paths.get(s"/uploaded$nodeIdStr"))
                   .via(ZPipeline.inflate())
               ),
-              headers = Headers
-                .apply("Access-Control-Allow-Origin", "http://localhost")
-                .combine(
-                  Headers.apply("Access-Control-Allow-Credentials", "true")
-                  .combine(
-                    Headers.apply("Access-Control-Allow-Methods", "GET")
-                )
+              headers = corsHeaders
             )
         }
     }
