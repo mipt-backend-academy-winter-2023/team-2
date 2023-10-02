@@ -8,7 +8,8 @@ trait Dependencies {
 object Dependencies {
 
   object Auth extends Dependencies {
-    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig, flyway, circe, pdiJwt).flatten
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, pureconfig, flyway, circe, pdiJwt).flatten
   }
 
   object Routing extends Dependencies {
@@ -17,5 +18,10 @@ object Dependencies {
 
   object Helper extends Dependencies {
     override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig).flatten
+  }
+
+  object Images extends Dependencies {
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, pureconfig, circe).flatten
   }
 }

@@ -14,15 +14,19 @@ tags:
     description: Authorization
   - name: route
     description: Everything connected with routes
+  - name: image
+    description: Upload a JPEG image
 
 paths:
-  /upload/{node_id}:
+  /upload/{nodeId}:
     post:
-      summary: Upload a JPEG image to the specified location
-      description: Uploads a single JPEG image to the specified node such as a house or intersection.
+      tags:
+        - image
+      summary: Upload image
+      description: Uploads a single JPEG image to the specified node.
       parameters:
-        - name: node_id
-          in: path
+        - in: path
+          name: nodeId
           required: true
           description: The identifier of the node
           schema:
@@ -47,7 +51,7 @@ paths:
                     type: string
                     example: success
         '400':
-          description: Invalid request - Image is not a valid JPEG format or exceeds the 10MB size limit
+          description: Invalid request - Image is not a valid JPEG format or exceeds the 10MB size limit.
           content:
             application/json:
               schema:
@@ -59,20 +63,26 @@ paths:
                   message:
                     type: string
                     example: Invalid image format or size
-        '500':
-          description: Internal server error
+  /download:
+    get:
+      summary: Download image
+      description: Download a single JPEG image.
+      parameters:
+        - name: nodeId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully downloaded the image
           content:
-            application/json:
+            image/jpeg:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: An error occurred while processing the image upload
-
+                type: string
+                format: binary
+        '404':
+          description: Image not found
   /auth/signup:
     post:
       tags:

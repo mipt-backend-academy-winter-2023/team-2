@@ -12,6 +12,12 @@ services:
       - "8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
 
+  images:
+    build: .
+    expose:
+      - "8083"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain images.ImagesMain'"
+
   database:
     image: "postgres"
     env_file:
@@ -25,6 +31,7 @@ services:
 #    expose:
 #      - "7777"
 #    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain helper.HelperMain'"
+
 
 volumes:
   database-data:
