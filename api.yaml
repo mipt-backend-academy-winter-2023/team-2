@@ -2,8 +2,6 @@ openapi: 3.0.3
 info:
   title: Route Finding API
   description: Route finding service API documentation
-  contact:
-    email: egorov.ga@phystech.edu
   version: 1.0.0
 
 servers:
@@ -129,36 +127,50 @@ paths:
           description: Invalid username/password supplied
   /route/find:
     get:
-      security:
-        - bearerAuth: [ ]
       tags:
         - route
       summary: Find route
-      description: Find points from ids.
+      description: Find route between points
       parameters:
-        - name: ids
+        - name: fromId
           in: query
           required: true
           schema:
-            type: array
-            items:
-              type: integer
-            minItems: 1
-            example: [ 1, 2, 3 ]
-          explode: true
+            type: integer
+            example: 1
+        - name: toId
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 3
       responses:
         '200':
           description: Successful operation
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Route'
-        '403':
-          description: Wrong token
+            text/plain:
+              example:
+                "Route - House house1 - Edge street3 - Crossroad intersection1"
         '400':
-          description: Bad request
+          description:
+            Either fromId or toId argument was omitted
 
-
+        '500':
+          description:
+            Wrong arguments types or node with specified id does not exist in database
+  /debug_graph:
+    get:
+      tags:
+        - debug
+      summary: Debug graph
+      description: Return whole graph for debug
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              example:
+                
 
 components:
   securitySchemes:

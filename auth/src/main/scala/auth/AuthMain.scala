@@ -1,6 +1,6 @@
 package auth
 
-import api.HttpRoutes
+import auth.api.HttpRoutes
 import auth.config.ServiceConfig
 import auth.config.Config
 import auth.flyway.FlywayAdapter

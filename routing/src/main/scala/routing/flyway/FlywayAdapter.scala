@@ -1,6 +1,6 @@
-package auth.flyway
+package routing.flyway
 
-import auth.config.DbConfig
+import routing.config.DbConfig
 import org.flywaydb.core.Flyway
 import zio._
 
@@ -18,7 +18,7 @@ class FlywayAdapterImpl(dbConfig: DbConfig) extends FlywayAdapter.Service {
       .succeed(
         Flyway
           .configure()
-          .locations(s"classpath:db/migration/")
+          .locations(s"classpath:routedb/migration/")
           .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
       )
       .map(new Flyway(_))

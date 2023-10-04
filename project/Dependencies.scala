@@ -13,7 +13,7 @@ object Dependencies {
   }
 
   object Routing extends Dependencies {
-    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig).flatten
+    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig, flyway, circe).flatten
   }
 
   object Helper extends Dependencies {

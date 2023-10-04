@@ -1,0 +1,22 @@
+name: test-build
+
+on:
+  pull_request:
+
+jobs:
+  buildx:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: CreateEnvironment
+        run: |
+          mkdir docker-compose
+          touch docker-compose/database.env
+          echo -e "POSTGRES_USER=user\nPOSTGRES_PASSWORD=user\nPOSTGRES_DB=db\n" > docker-compose/database.env
+          touch docker-compose/routedatabase.env
+          echo -e "POSTGRES_USER=user\nPOSTGRES_PASSWORD=user\nPOSTGRES_DB=routedb\n" > docker-compose/routedatabase.env
+      - name: Build Docker
+        uses: sudo-bot/action-docker-compose@latest
+        with:
+          cli-args: "build"
