@@ -12,8 +12,75 @@ tags:
     description: Authorization
   - name: route
     description: Everything connected with routes
+  - name: image
+    description: Upload a JPEG image
 
 paths:
+  /upload/{nodeId}:
+    post:
+      tags:
+        - image
+      summary: Upload image
+      description: Uploads a single JPEG image to the specified node.
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          description: The identifier of the node
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+              maxLength: 10485760
+      responses:
+        '200':
+          description: Successfully uploaded the image
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        '400':
+          description: Invalid request - Image is not a valid JPEG format or exceeds the 10MB size limit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid image format or size
+  /download:
+    get:
+      summary: Download image
+      description: Download a single JPEG image.
+      parameters:
+        - name: nodeId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully downloaded the image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Image not found
   /auth/signup:
     post:
       tags:

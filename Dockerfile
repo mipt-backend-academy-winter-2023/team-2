@@ -24,5 +24,6 @@ RUN bash -c "$sbt package"
 EXPOSE 7777
 EXPOSE 8081
 EXPOSE 8082
+EXPOSE 8083
 
 ENTRYPOINT bash -c "$sbt run"
