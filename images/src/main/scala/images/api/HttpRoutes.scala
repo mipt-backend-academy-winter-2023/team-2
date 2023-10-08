@@ -1,14 +1,13 @@
 package images.api
 
+import images.utils.JpegFormat
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
-import zio.http.model.Status.NotImplemented
 import zio.stream.{ZPipeline, ZSink}
 
 import java.io.File
 import java.nio.file.{Files, Paths}
-
 object HttpRoutes {
   val app: HttpApp[Any, Response] =
     Http.collectZIO[Request] {
@@ -19,15 +18,20 @@ object HttpRoutes {
         (for {
           path <- ZIO.attempt(Files.createFile(imagePath))
           fileSize <- req.body.asStream
+            .via(JpegFormat.validate)
+            .via(JpegFormat.cutMaxSize)
+            .run(ZSink.count)
+          _ <- JpegFormat.checkSize(fileSize)
+          _ <- req.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
-        } yield fileSize).either
+        } yield ()).either
           .map {
-            case Right(fileSize) if fileSize <= 10 * 1024 * 1024 => Response.ok
-            case _ =>
+            case Left(error) =>
               Files.deleteIfExists(imagePath)
-              ZIO.logInfo(s"Uploading image $nodeId went wrong")
+              ZIO.logInfo(s"Error while uploading image of $nodeId: ${error.getMessage}")
               Response.status(Status.BadRequest)
+            case _ => Response.ok
           }
 
       case req @ Method.GET -> !! / "download" / nodeId =>
