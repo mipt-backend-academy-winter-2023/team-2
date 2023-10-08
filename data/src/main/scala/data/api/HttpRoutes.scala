@@ -14,7 +14,7 @@ import java.nio.file.{Files, Paths}
 object HttpRoutes {
   val app: HttpApp[Any, Response] =
     Http.collectZIO[Request] {
-      case request@Method.PUT -> !! / "upload" =>
+      case request@Method.PUT -> !! / "data" / "upload" =>
         (for {
           id <- ZIO
             .fromOption(
@@ -31,7 +31,7 @@ object HttpRoutes {
           case Right(id) => Response.text(s"Uploaded photo for $id")
           case Left(_) => Response.status(Status.BadRequest)
         }
-      case req@Method.GET -> !! / "download"  =>
+      case req@Method.GET -> !! / "data" / "download"  =>
         (for {
           id <- ZIO
             .fromOption(

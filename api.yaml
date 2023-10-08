@@ -12,6 +12,8 @@ tags:
     description: Authorization
   - name: route
     description: Everything connected with routes
+  - name: data
+    description: Photos of intersections/houses
 
 paths:
   /auth/signup:
@@ -103,6 +105,47 @@ paths:
           content:
             text/plain:
               example:
+  /data/upload:
+    put:
+      tags:
+       - data
+      summary: Upload data
+      description: Upload photo of intersection/house
+      requestBody:
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+      /download:
+        get:
+          summary: Show image of intersection/house
+          parameters:
+            - name: id
+              in: query
+              required: true
+              schema:
+                type: integer
+                example: 1
+          responses:
+            '200':
+              description:
+              content:
+                text/html:
+            '400':
+              description: Bad request
                 
 
 components:
