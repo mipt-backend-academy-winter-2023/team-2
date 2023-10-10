@@ -1,9 +1,9 @@
 package images.api
 
+import images.utils.ImageValidation
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
-import zio.http.model.Status.NotImplemented
 import zio.stream.{ZPipeline, ZSink}
 
 import java.io.File
@@ -18,6 +18,9 @@ object HttpRoutes {
           Files.createDirectories(imagePath.getParent)
         (for {
           path <- ZIO.attempt(Files.createFile(imagePath))
+          _ <- req.body.asStream
+            .via(ImageValidation.pipeline)
+            .run(ZSink.drain)
           fileSize <- req.body.asStream
             .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
