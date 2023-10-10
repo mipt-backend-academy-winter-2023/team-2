@@ -24,7 +24,6 @@ object HttpRoutes {
             .via(JpegValidation.pipeline)
             .run(ZSink.drain)
           fileSize <- req.body.asStream
-            .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
         } yield fileSize).either
           .map {
