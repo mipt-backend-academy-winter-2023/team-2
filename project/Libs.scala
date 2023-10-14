@@ -1,6 +1,8 @@
 import sbt._
 
 object V {
+  val test = "3.2.15"
+
   val zio = "2.0.13"
   val zioHttp = "0.0.5"
   val zio_sql = "0.1.2"
@@ -12,6 +14,8 @@ object V {
 }
 
 object Libs {
+
+  val test: List[ModuleID] = List("org.scalatest" %% "scalatest" % V.test % Test)
 
   val zio: List[ModuleID] = List(
     "dev.zio" %% "zio" % V.zio,
