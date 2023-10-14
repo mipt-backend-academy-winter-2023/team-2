@@ -2,12 +2,9 @@ name: Scala CI
 on:
   push:
     branches:
-      - main
-      - 'homework/*'
-  pull_request:
-    branches:
-      - main
-      - 'homework/*'
+      - master
+      - 'release/EgorovGordei/**'
+      - 'task/07-CI/EgorovGordei' # DONT FORGET DO DELETE THIS TRIGGER
 jobs:
   test:
     runs-on: ubuntu-latest
