@@ -12,10 +12,12 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 object HttpRoutes {
+  val imageDir = "./src/images/"
+
   val app: HttpApp[Any, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "upload" / nodeId =>
-        val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
+        val imagePath = Paths.get(s"$imageDir$nodeId.jpeg")
         if (!Files.exists(imagePath.getParent))
           Files.createDirectories(imagePath.getParent)
         (for {
@@ -35,7 +37,7 @@ object HttpRoutes {
           }
 
       case req @ Method.GET -> !! / "download" / nodeId =>
-        val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
+        val imagePath = Paths.get(s"$imageDir$nodeId.jpeg")
         if (Files.exists(imagePath)) {
           ZIO.succeed(
             Response(

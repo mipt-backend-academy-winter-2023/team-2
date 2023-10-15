@@ -1,17 +1,27 @@
 package images
 
 import images.api.HttpRoutes
-//import .model.User
+import java.io.File
 import scala.collection.mutable.ListBuffer
+import scala.reflect.io.Directory
 import zio.{Chunk, ZLayer}
 import zio.http.{URL, Body, Request, !!}
 import zio.http.model.{Status}
 import zio.test.{ZIOSpecDefault, suite, test, assertTrue}
 
 object ImagesSpec extends ZIOSpecDefault {
-  val msgJPEG = Chunk[Byte](0xff.toByte, 0xd8.toByte, 0xff.toByte, 0x31.toByte, 0x41.toByte, 0x59.toByte)
+  val msgJPEG = Chunk[Byte](
+    0xff.toByte,
+    0xd8.toByte,
+    0xff.toByte,
+    0x31.toByte,
+    0x41.toByte,
+    0x59.toByte
+  )
   val bodyJPEG = Body.fromChunk(msgJPEG)
   val bodyOther = Body.fromString("")
+
+  (new Directory(new File(HttpRoutes.imageDir))).deleteRecursively()
 
   def spec =
     suite("Main suite")(
@@ -68,6 +78,6 @@ object ImagesSpec extends ZIOSpecDefault {
           assertTrue(response.status == Status.Ok)
           assertTrue(body == msgJPEG)
         }
-      },
+      }
     )
 }
