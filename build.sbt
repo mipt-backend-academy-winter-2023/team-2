@@ -24,7 +24,8 @@ lazy val root = (project in file("."))
 lazy val auth = (project in file("auth"))
   .settings(
     name := "project-auth",
-    libraryDependencies ++= Auth.dependencies
+    libraryDependencies ++= Auth.dependencies,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
 
 lazy val routing = (project in file("routing"))

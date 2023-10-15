@@ -2,6 +2,8 @@ import sbt._
 
 object V {
   val test = "3.2.15"
+  val zioTest = "2.0.15"
+  val zioTestMock = "1.0.0-RC11"
 
   val zio = "2.0.13"
   val zioHttp = "0.0.5"
@@ -15,7 +17,13 @@ object V {
 
 object Libs {
 
-  val test: List[ModuleID] = List("org.scalatest" %% "scalatest" % V.test % Test)
+  val test: List[ModuleID] = List(
+    "org.scalatest" %% "scalatest" % V.test % Test,
+    "dev.zio" %% "zio-test" % V.zioTest % Test,
+    "dev.zio" %% "zio-test-sbt"      % V.zioTest % Test,
+    "dev.zio" %% "zio-test-magnolia" % V.zioTest % Test,
+    "dev.zio" %% "zio-mock" % V.zioTestMock % Test
+  )
 
   val zio: List[ModuleID] = List(
     "dev.zio" %% "zio" % V.zio,
