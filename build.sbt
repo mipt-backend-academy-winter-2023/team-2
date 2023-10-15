@@ -31,7 +31,8 @@ lazy val auth = (project in file("auth"))
 lazy val routing = (project in file("routing"))
   .settings(
     name := "project-routing",
-    libraryDependencies ++= Routing.dependencies
+    libraryDependencies ++= Routing.dependencies,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
 
 lazy val helper = (project in file("helper"))
@@ -43,5 +44,6 @@ lazy val helper = (project in file("helper"))
 lazy val images = (project in file("images"))
   .settings(
     name := "project-images",
-    libraryDependencies ++= Images.dependencies
+    libraryDependencies ++= Images.dependencies,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
