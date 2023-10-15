@@ -24,7 +24,7 @@ object ImagesSpec extends ZIOSpecDefault {
   (new Directory(new File(HttpRoutes.imageDir))).deleteRecursively()
 
   def spec =
-    suite("Main suite")(
+    suite("Images tests")(
       test("Upload should return Ok if sent JPEG") {
         val imageId = "2"
         for {

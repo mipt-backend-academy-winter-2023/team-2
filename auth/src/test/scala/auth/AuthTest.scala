@@ -15,7 +15,7 @@ object AuthSpec extends ZIOSpecDefault {
     s"""{"username": "${user.username}","password": "${user.password}"}"""
 
   def spec =
-    suite("Main suite")(
+    suite("Auth tests")(
       test("Sign up should return Ok if not exists") {
         val user: User = new User("aaa", "bbb")
         val user2: User = new User("ccc", "ddd")
