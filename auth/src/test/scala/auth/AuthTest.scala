@@ -6,25 +6,22 @@ import auth.repository.UserRepository
 import auth.model.User
 import scala.collection.mutable.ListBuffer
 
-final class MockUserRepositoryImpl(init: ListBuffer[User]) extends UserRepository {
-  def add(user: auth.model.User): zio.ZIO[auth.repository.UserRepository,Throwable,Unit] = {
-    if (init.forall(_.username != user.username)) {
-      init += user
+final class MockUserRepositoryImpl(users: ListBuffer[User]) extends UserRepository {
+  def add(user: User): ZIO[UserRepository,Throwable,Unit] = {
+    if (users.forall(_.username != user.username)) {
+      users += user
       ZIO.succeed()
     } else {
       ZIO.fail(new Exception("User already exists"))
     }
   }
-  def findUser(user: auth.model.User): zio.stream.ZStream[Any,Throwable,auth.model.User] =
-    //if (user.username == "")
+  def findUser(user: User): ZStream[Any,Throwable,User] =
+    users.find(x => x.username == user.username && x.password == user.password) match {
+      case None => ZStream.empty
+      case Some(foundUser) => ZStream.fromZIO(ZIO.succeed(foundUser))
+    }
+  def findUserByUsername(user: User): ZStream[UserRepository,Throwable,User] =
     ZStream.fromZIO(ZIO.succeed(new User("", "")))
-  def findUserByUsername(user: auth.model.User): zio.stream.ZStream[auth.repository.UserRepository,Throwable,auth.model.User] =
-    ZStream.fromZIO(ZIO.succeed(new User("", "")))
-}
-
-object MockUserRepositoryImpl {
-  def live(init: ListBuffer[User]): ZLayer[ListBuffer[User], Throwable, UserRepository] =
-    ZLayer.succeed(new MockUserRepositoryImpl(init))
 }
 
 
@@ -37,13 +34,43 @@ import zio.test.{ZIOSpecDefault, suite, test, assertTrue}
 object AuthSpec extends ZIOSpecDefault {
   def spec =
     suite("Main suite")(
-      test("Sign up should return ok status") {
+      test("Sign up should return Ok if not exists") {
+        val user: User = new User("aaa", "bbb")
+        val user2: User = new User("ccc", "ddd")
         (for {
-          response <- HttpRoutes.app.runZIO(Request.post(Body.fromString("{\"username\": \"theUser\",\"password\": \"1112345\"}"), URL(!! / "auth" / "signup")))
+          response <- HttpRoutes.app.runZIO(Request.post(Body.fromString(s"{\"username\": \"${user.username}\",\"password\": \"${user.password}\"}"), URL(!! / "auth" / "signup")))
           body     <- response.body.asString
         } yield {
           assertTrue(response.status == Status.Ok)
-        }).provideLayer(MockUserRepositoryImpl.live(new ListBuffer[User]()))
+        }).provideLayer(ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user2))))
+      },
+      test("Sign up should return BadRequest if already exists") {
+        val user: User = new User("aaa", "bbb")
+        (for {
+          response <- HttpRoutes.app.runZIO(Request.post(Body.fromString(s"{\"username\": \"${user.username}\",\"password\": \"${user.password}\"}"), URL(!! / "auth" / "signup")))
+          body     <- response.body.asString
+        } yield {
+          assertTrue(response.status == Status.BadRequest)
+        }).provideLayer(ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user))))
+      },
+      test("Sign in should return Forbidden if not exists") {
+        val user: User = new User("aaa", "bbb")
+        val user2: User = new User("ccc", "ddd")
+        (for {
+          response <- HttpRoutes.app.runZIO(Request.post(Body.fromString(s"{\"username\": \"${user.username}\",\"password\": \"${user.password}\"}"), URL(!! / "auth" / "signin")))
+          body     <- response.body.asString
+        } yield {
+          assertTrue(response.status == Status.Forbidden)
+        }).provideLayer(ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user2))))
+      },
+      test("Sign in should return Ok if already exists") {
+        val user: User = new User("aaa", "bbb")
+        (for {
+          response <- HttpRoutes.app.runZIO(Request.post(Body.fromString(s"{\"username\": \"${user.username}\",\"password\": \"${user.password}\"}"), URL(!! / "auth" / "signin")))
+          body     <- response.body.asString
+        } yield {
+          assertTrue(response.status == Status.Ok)
+        }).provideLayer(ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user))))
       }
     )
 }
