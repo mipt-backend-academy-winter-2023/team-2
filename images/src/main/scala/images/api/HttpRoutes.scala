@@ -37,7 +37,6 @@ object HttpRoutes {
       case req @ Method.GET -> !! / "download" / nodeId =>
         val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
         if (Files.exists(imagePath)) {
-          ZIO.succeed(Response.status(Status.NotFound))
           ZIO.succeed(
             Response(
               status = Status.Ok,

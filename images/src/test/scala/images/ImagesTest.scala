@@ -3,80 +3,71 @@ package images
 import images.api.HttpRoutes
 //import .model.User
 import scala.collection.mutable.ListBuffer
+import zio.{Chunk, ZLayer}
 import zio.http.{URL, Body, Request, !!}
-import zio.ZLayer
 import zio.http.model.{Status}
 import zio.test.{ZIOSpecDefault, suite, test, assertTrue}
 
 object ImagesSpec extends ZIOSpecDefault {
+  val msgJPEG = Chunk[Byte](0xff.toByte, 0xd8.toByte, 0xff.toByte, 0x31.toByte, 0x41.toByte, 0x59.toByte)
+  val bodyJPEG = Body.fromChunk(msgJPEG)
+  val bodyOther = Body.fromString("")
+
   def spec =
     suite("Main suite")(
       test("Upload should return Ok if sent JPEG") {
-        assertTrue(1 == 1)
-        /*val user: User = new User("aaa", "bbb")
-        val user2: User = new User("ccc", "ddd")
-        (for {
+        val imageId = "2"
+        for {
           response <- HttpRoutes.app.runZIO(
             Request.post(
-              Body.fromString(userToStringJson(user)),
-              URL(!! / "auth" / "signup")
+              bodyJPEG,
+              URL(!! / "upload" / imageId)
             )
           )
-          body <- response.body.asString
         } yield {
           assertTrue(response.status == Status.Ok)
-        }).provideLayer(
-          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user2)))
-        )*/
+        }
       },
-/*      test("Sign up should return BadRequest if already exists") {
-        val user: User = new User("aaa", "bbb")
-        (for {
+      test("Upload should return BadRequest if sent not JPEG") {
+        val imageId = "3"
+        for {
           response <- HttpRoutes.app.runZIO(
             Request.post(
-              Body.fromString(userToStringJson(user)),
-              URL(!! / "auth" / "signup")
+              bodyOther,
+              URL(!! / "upload" / imageId)
             )
           )
-          body <- response.body.asString
         } yield {
           assertTrue(response.status == Status.BadRequest)
-        }).provideLayer(
-          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user)))
-        )
+        }
       },
-      test("Sign in should return Forbidden if not exists") {
-        val user: User = new User("aaa", "bbb")
-        val user2: User = new User("ccc", "ddd")
-        (for {
+      test("Download should return NotFound if no file exists") {
+        val imageId = "4"
+        for {
           response <- HttpRoutes.app.runZIO(
-            Request.post(
-              Body.fromString(userToStringJson(user)),
-              URL(!! / "auth" / "signin")
-            )
+            Request.get(URL(!! / "download" / imageId))
           )
-          body <- response.body.asString
         } yield {
-          assertTrue(response.status == Status.Forbidden)
-        }).provideLayer(
-          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user2)))
-        )
+          assertTrue(response.status == Status.NotFound)
+        }
       },
-      test("Sign in should return Ok if already exists") {
-        val user: User = new User("aaa", "bbb")
-        (for {
-          response <- HttpRoutes.app.runZIO(
+      test("Download should return same file as uploaded") {
+        val imageId = "5"
+        for {
+          _ <- HttpRoutes.app.runZIO(
             Request.post(
-              Body.fromString(userToStringJson(user)),
-              URL(!! / "auth" / "signin")
+              bodyJPEG,
+              URL(!! / "upload" / imageId)
             )
           )
-          body <- response.body.asString
+          response <- HttpRoutes.app.runZIO(
+            Request.get(URL(!! / "download" / imageId))
+          )
+          body <- response.body.asChunk
         } yield {
           assertTrue(response.status == Status.Ok)
-        }).provideLayer(
-          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user)))
-        )
-      }*/
+          assertTrue(body == msgJPEG)
+        }
+      },
     )
 }

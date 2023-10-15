@@ -17,3 +17,7 @@ project/target/
 
 # Misc
 *.env
+
+# Images in images service
+src/images/**
+
