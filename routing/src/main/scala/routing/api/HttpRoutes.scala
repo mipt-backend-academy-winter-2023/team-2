@@ -1,5 +1,7 @@
 package routing.api
 
+import scala.util.Try
+
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -20,7 +22,7 @@ object HttpRoutes {
                 .flatMap(_.headOption)
             )
             .tapError(_ => ZIO.logError("Provide fromId argument"))
-          fromId = fromIdStr.toInt
+          fromId <- ZIO.fromTry(Try(fromIdStr.toInt))
           toIdStr <- ZIO
             .fromOption(
               req.url.queryParams
@@ -28,7 +30,7 @@ object HttpRoutes {
                 .flatMap(_.headOption)
             )
             .tapError(_ => ZIO.logError("Provide toId argument"))
-          toId <- ZIO.succeed(toIdStr.toInt)
+          toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
         } yield (path)).either.map {
           case Right(route) => {
