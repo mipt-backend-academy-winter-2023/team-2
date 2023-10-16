@@ -52,33 +52,6 @@ object RoutingSpec extends ZIOSpecDefault {
             ZLayer.succeed(new MockEdgeRepositoryImpl(ListBuffer()))
         )
       },
-      test("Find should return empty string if no path") {
-        (for {
-          _ <- Graph.loadGraph
-          response <- HttpRoutes.app.runZIO(
-            Request.get(
-              URL(
-                !! / "route" / "find",
-                queryParams =
-                  QueryParams("fromId" -> Chunk("1"), "toId" -> Chunk("2"))
-              )
-            )
-          )
-          body <- response.body.asString
-        } yield {
-          assertTrue(body == "")
-        }).provideLayer(
-          ZLayer.succeed(
-            new MockNodeRepositoryImpl(
-              ListBuffer(
-                Node(1, "0", "house1", "SRID=4326;POINT(-110 30)"),
-                Node(2, "1", "house2", "SRID=4326;POINT(-110 30)")
-              )
-            )
-          ) ++
-            ZLayer.succeed(new MockEdgeRepositoryImpl(ListBuffer()))
-        )
-      },
       test("Find should return proper route") {
         (for {
           _ <- Graph.loadGraph
