@@ -10,7 +10,7 @@ ARG sdkman="source ~/.sdkman/bin/sdkman-init.sh"
 ARG sdk="$sdkman && sdk"
 ARG sbt="$sdkman && sbt"
 
-RUN bash -c "$sdk install java $(sdk list java | grep -o "\b8\.[0-9]*\.[0-9]*\-tem" | head -1)"
+RUN bash -c "$sdk install java 20.0.2-tem"
 
 RUN bash -c "$sdk install sbt"
 
