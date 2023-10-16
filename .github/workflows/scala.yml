@@ -12,6 +12,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run tests
         run: sbt test
+      - name: Cache SBT dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.sbt"
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
   lint:
     runs-on: ubuntu-latest
     steps:
