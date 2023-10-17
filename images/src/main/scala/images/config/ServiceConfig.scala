@@ -15,5 +15,6 @@ object ServiceConfig {
   val live: ZLayer[Any, Nothing, ServerConfig] = zio.http.ServerConfig.live {
     http.ServerConfig.default
       .binding(serviceConfig.host, serviceConfig.port)
+      .objectAggregator(maxRequestSize = 10 * 1024 * 1024)
   }
 }

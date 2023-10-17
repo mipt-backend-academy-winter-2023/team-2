@@ -1,5 +1,7 @@
 package images.api
 
+import images.utils.JpegValidation
+
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -18,8 +20,10 @@ object HttpRoutes {
           Files.createDirectories(imagePath.getParent)
         (for {
           path <- ZIO.attempt(Files.createFile(imagePath))
+          _ <- req.body.asStream
+            .via(JpegValidation.pipeline)
+            .run(ZSink.drain)
           fileSize <- req.body.asStream
-            .via(ZPipeline.deflate())
             .run(ZSink.fromPath(path))
         } yield fileSize).either
           .map {

@@ -14,8 +14,8 @@ services:
 
   images:
     build: .
-    expose:
-      - "8083"
+    ports:
+      - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain images.ImagesMain'"
 
   database:
