@@ -1,0 +1,30 @@
+name: Scala CI
+on:
+  push:
+    branches:
+      - 'master'
+      - 'task/07-ci/khrolariana'
+      - 'release/khrolariana/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: sbt test
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check code formatting
+        run: sbt scalafmtCheckAll test:scalafmtCheckAll
