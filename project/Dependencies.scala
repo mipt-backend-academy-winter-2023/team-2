@@ -9,19 +9,21 @@ object Dependencies {
 
   object Auth extends Dependencies {
     override def dependencies: Seq[ModuleID] =
-      Seq(zio, pureconfig, flyway, circe, pdiJwt).flatten
+      Seq(zio, test, pureconfig, flyway, circe, pdiJwt).flatten
   }
 
   object Routing extends Dependencies {
-    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig, flyway, circe).flatten
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, test, pureconfig, flyway, circe).flatten
   }
 
   object Helper extends Dependencies {
-    override def dependencies: Seq[ModuleID] = Seq(zio, pureconfig).flatten
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, test, pureconfig).flatten
   }
 
   object Images extends Dependencies {
     override def dependencies: Seq[ModuleID] =
-      Seq(zio, pureconfig, circe).flatten
+      Seq(zio, test, pureconfig, circe).flatten
   }
 }
