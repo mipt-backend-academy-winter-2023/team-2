@@ -100,6 +100,9 @@ object Graph {
         Float.PositiveInfinity
       )
     }
+    if (!nodesIdToIndex.contains(fromid) || !nodesIdToIndex.contains(toid)) {
+      return ZIO.fail(new Exception("Endpoint doesnt exists"))
+    }
     // find node with specified id
     val fromIndex = nodesIdToIndex(fromid)
     val toIndex = nodesIdToIndex(toid)
@@ -115,12 +118,14 @@ object Graph {
       1
     )
     openSet enqueue nodesForGraph(fromIndex)
+    var wasFound = false
     while (openSet.length > 0) {
       // get current node and mark it closed
       var current = openSet.dequeue
       closedSet add current.index
       // if reached end
       if (current.index == toIndex) {
+        wasFound = true
         // found finish, restore path
         path = addNodeToPath(path, current)
         while (current.prev != None) {
@@ -155,8 +160,10 @@ object Graph {
         })
       }
     }
-    // return
-    ZIO.succeed(path)
+    if (wasFound)
+      ZIO.succeed(path)
+    else
+      ZIO.fail(new Exception("There is no path"))
   }
 
   case class NodeGraph(
