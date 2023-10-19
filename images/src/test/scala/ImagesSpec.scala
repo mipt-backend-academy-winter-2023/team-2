@@ -61,7 +61,7 @@ object ImagesSpec extends ZIOSpecDefault {
     }, test("Should upload light picture") {
       (for {
         upload_light_picture <- upload(lightPicture, nodeId)
-        //FYI: fails while uploading picture for node that already has a picture
+        //FYI:fails while uploading picture for node that already has a picture
       } yield {
         assertTrue(shouldBeOk(upload_light_picture))
       })
