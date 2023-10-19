@@ -18,7 +18,10 @@ import scala.io.Source
 
 object ImagesSpec extends ZIOSpecDefault {
 
-  def getFile(filename: String) = new File("images\\src\\test\\resources\\" + filename)
+  def getFile(filename: String) = {
+    println(new File(".").toPath.toString)
+    new File("./images/src/test/resources/" + filename)
+  }
 
   private val heavyPicture = getFile("heavy_picture.jpg")
   private val textFile = getFile("not_a_picture.txt")
