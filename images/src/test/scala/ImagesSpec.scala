@@ -45,7 +45,8 @@ object ImagesSpec extends ZIOSpecDefault {
 
   def getData(file: File) = Files.readAllBytes(file.toPath)
   def shouldBeOk(response: Response) = response.status == Status.Ok
-  def shouldBeBadRequest(response: Response) = response.status == Status.BadRequest
+  def shouldBeBadRequest(response: Response) =
+    response.status == Status.BadRequest
   def spec = suite("Images tests")(
     test("Shouldn't upload too heavy picture") {
       (for {
@@ -53,25 +54,26 @@ object ImagesSpec extends ZIOSpecDefault {
       } yield {
         assertTrue(shouldBeBadRequest(upload_heavy_picture))
       })
-    }, test("Shouldn't upload text file") {
+    },
+    test("Shouldn't upload text file") {
       (for {
         upload_text_file <- upload(textFile)
       } yield {
         assertTrue(shouldBeBadRequest(upload_text_file))
       })
-    }, test("Should upload light picture") {
+    },
+    test("Should upload light picture") {
       (for {
         upload_light_picture <- upload(lightPicture, nodeId)
         //FYI:fails while uploading picture for node that already has a picture
       } yield {
         assertTrue(shouldBeOk(upload_light_picture))
       })
-    }, test ("Should be able to download picture") {
+    },
+    test("Should be able to download picture") {
       (for {
         download_small_picture <- download(nodeId)
-        _ <- download_small_picture
-          .body
-          .asStream
+        _ <- download_small_picture.body.asStream
           .run(ZSink.fromFile(bufferFile))
       } yield {
         assertTrue(

@@ -7,7 +7,8 @@ import zio.stream.ZStream
 
 import scala.collection.mutable
 import scala.reflect.runtime.universe.Try
-final class MockUserRepository(users: mutable.Map[String, User]) extends UserRepository {
+final class MockUserRepository(users: mutable.Map[String, User])
+    extends UserRepository {
   override def add(user: User): ZIO[UserRepository, Throwable, Unit] = {
     if (!users.contains(user.username)) {
       users += user.username -> user
@@ -17,7 +18,9 @@ final class MockUserRepository(users: mutable.Map[String, User]) extends UserRep
     }
   }
 
-  override def findUserByUsername(user: User): ZStream[UserRepository, Throwable, User] = {
+  override def findUserByUsername(
+      user: User
+  ): ZStream[UserRepository, Throwable, User] = {
     try {
       ZStream.fromZIO(ZIO.succeed(users(user.username)))
     } catch {

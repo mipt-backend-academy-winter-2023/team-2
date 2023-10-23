@@ -53,7 +53,7 @@ object RoutingSpec extends ZIOSpecDefault {
     val suffix = " )"
     val body = response.body.toString
     body.length >= prefix.length + suffix.length &&
-      body.substring(prefix.length, body.length - suffix.length) == path
+    body.substring(prefix.length, body.length - suffix.length) == path
   }
 
   def spec = suite("Routing tests")(
@@ -63,43 +63,48 @@ object RoutingSpec extends ZIOSpecDefault {
         toId_notInt <- findStr("1", "a")
         no_fromId <- findQuery(Map("toId" -> Chunk("2")))
         no_toId <- findQuery(Map("fromId" -> Chunk("1")))
-      } yield { assertTrue(
+      } yield {
+        assertTrue(
           shouldBeBad(fromId_notInt)
-          && shouldBeBad(toId_notInt)
-          && shouldBeBad(no_fromId)
-          && shouldBeBad(no_toId)
+            && shouldBeBad(toId_notInt)
+            && shouldBeBad(no_fromId)
+            && shouldBeBad(no_toId)
         )
       }).provideLayer(
         mockRepository(List.empty, List.empty)
       )
-    }, test("should fail if there is no path") {
+    },
+    test("should fail if there is no path") {
       (for {
         _ <- Graph.loadGraph
         fromId_doesntExists <- find(42, 3)
         toId_doesntExists <- find(1, 42)
         endpointsAreNotConnected <- find(1, 3)
-      } yield { assertTrue(
+      } yield {
+        assertTrue(
           shouldBeBad(fromId_doesntExists)
-          && shouldBeBad(toId_doesntExists)
-          && shouldBeBad(endpointsAreNotConnected)
+            && shouldBeBad(toId_doesntExists)
+            && shouldBeBad(endpointsAreNotConnected)
         )
       }).provideLayer(
         mockRepository(allNodes, List.empty)
       )
-    }, test("Should correctly find path") {
+    },
+    test("Should correctly find path") {
       (for {
         _ <- Graph.loadGraph
         path_1_1 <- find(1, 1)
         path_1_3 <- find(1, 3)
       } yield {
         val expected_1_1 = "Route - House house1"
-        val expected_1_3 = "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
+        val expected_1_3 =
+          "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
 
         assertTrue(
           shouldBeOk(path_1_1)
-          && shouldBeOk(path_1_3)
-          && checkPath(path_1_1, expected_1_1)
-          && checkPath(path_1_3, expected_1_3)
+            && shouldBeOk(path_1_3)
+            && checkPath(path_1_1, expected_1_1)
+            && checkPath(path_1_3, expected_1_3)
         )
       }).provideLayer(
         mockRepository(allNodes, allEdges)
