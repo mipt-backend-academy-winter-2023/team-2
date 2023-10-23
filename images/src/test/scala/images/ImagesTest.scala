@@ -9,7 +9,7 @@ import zio.http.{URL, Body, Request, !!}
 import zio.http.model.{Status}
 import zio.test.{ZIOSpecDefault, suite, test, assertTrue}
 
-object ImagesSpec extends ZIOSpecDefault {
+object ImagesTest extends ZIOSpecDefault {
   val msgJPEG = Chunk[Byte](
     0xff.toByte,
     0xd8.toByte,

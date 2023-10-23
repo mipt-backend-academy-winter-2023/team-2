@@ -10,7 +10,7 @@ import zio.ZLayer
 import zio.http.model.{Status}
 import zio.test.{ZIOSpecDefault, suite, test, assertTrue}
 
-object AuthSpec extends ZIOSpecDefault {
+object AuthTest extends ZIOSpecDefault {
   def userToStringJson(user: User) =
     s"""{"username": "${user.username}","password": "${user.password}"}"""
 

@@ -18,7 +18,6 @@ object V {
 object Libs {
 
   val test: List[ModuleID] = List(
-    "org.scalatest" %% "scalatest" % V.test % Test,
     "dev.zio" %% "zio-test" % V.zioTest % Test,
     "dev.zio" %% "zio-test-sbt"      % V.zioTest % Test,
     "dev.zio" %% "zio-test-magnolia" % V.zioTest % Test,
