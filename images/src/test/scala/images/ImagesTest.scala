@@ -75,7 +75,7 @@ object ImagesTest extends ZIOSpecDefault {
           )
           body <- response.body.asChunk
         } yield {
-          assertTrue(response.status == Status.Ok)
+          assertTrue(response.status == Status.Ok) &&
           assertTrue(body == msgJPEG)
         }
       }

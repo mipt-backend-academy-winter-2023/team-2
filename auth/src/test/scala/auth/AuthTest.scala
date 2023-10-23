@@ -98,10 +98,10 @@ object AuthTest extends ZIOSpecDefault {
             )
           )
         } yield {
-          assertTrue(responseUp.status == Status.Ok)
+          assertTrue(responseUp.status == Status.Ok) &&
           assertTrue(responseIn.status == Status.Ok)
         }).provideLayer(
-          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer(user)))
+          ZLayer.succeed(new MockUserRepositoryImpl(ListBuffer()))
         )
       }
     )
