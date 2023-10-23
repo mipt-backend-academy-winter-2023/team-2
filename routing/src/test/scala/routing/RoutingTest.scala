@@ -65,7 +65,6 @@ object RoutingTest extends ZIOSpecDefault {
           )
           body <- response.body.asString
         } yield {
-          assertTrue(1 == 2)
           assertTrue(
             body == "Route - House house1 - Edge firstHalfOfStreet - Crossroad intersection1 - Edge secondHalfOfStreet - House house2 "
           )
