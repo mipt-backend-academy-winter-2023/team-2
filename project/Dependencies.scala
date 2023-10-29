@@ -26,4 +26,9 @@ object Dependencies {
     override def dependencies: Seq[ModuleID] =
       Seq(zio, test, pureconfig, circe).flatten
   }
+
+  object Utils extends Dependencies {
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, test, pureconfig).flatten
+  }
 }

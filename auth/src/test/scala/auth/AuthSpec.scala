@@ -1,15 +1,14 @@
 package auth
 
-import zio.{ZIO, ZLayer, ULayer}
-import zio.http.{Body, Request, Response, URL, !!}
-import zio.http.model.Status
-import zio.test.{ZIOSpecDefault, Spec, TestResult, assertTrue}
-
 import auth.api.HttpRoutes
 import auth.model.User
 import auth.repository.UserRepository
+import testutils.TestHelpers._
+import zio.http._
+import zio.test.{Spec, ZIOSpecDefault}
+import zio.{ULayer, ZIO, ZLayer}
 
-class Auth extends ZIOSpecDefault {
+class AuthSpec extends ZIOSpecDefault {
   def mockUserRepository(): ULayer[MockUserRepository] = {
     ZLayer.succeed(new MockUserRepository(collection.mutable.ListBuffer.empty))
   }
@@ -41,12 +40,6 @@ class Auth extends ZIOSpecDefault {
       )
     )
 
-  def assertOk(response: zio.http.Response): TestResult =
-    assertTrue(response.status == Status.Ok)
-
-  def assertBadRequest(response: zio.http.Response): TestResult =
-    assertTrue(response.status == Status.BadRequest)
-
   private val mock_user1 = new User("mock-username-1", "mock-password-1")
   private val mock_user1_copy_password =
     new User("mock-username-1-copy", "mock-password-1")
@@ -60,9 +53,9 @@ class Auth extends ZIOSpecDefault {
         user1_sign_in_again <- signIn(mock_user1)
         user1_copy_password_sign_up <- signUp(mock_user1_copy_password)
       } yield {
-        assertOk(user1_sign_up)
-        assertOk(user1_sign_in)
-        assertOk(user1_sign_in_again)
+        assertOk(user1_sign_up) &&
+        assertOk(user1_sign_in) &&
+        assertOk(user1_sign_in_again) &&
         assertOk(user1_copy_password_sign_up)
       }).provideLayer(mockUserRepository())
     }
@@ -79,14 +72,13 @@ class Auth extends ZIOSpecDefault {
       user1_mock_user1_copy_password_sign_in <- signIn(mock_user1_copy_password)
       user1_mock_user1_copy_username_sign_in <- signIn(mock_user1_copy_username)
     } yield {
-      assertOk(user1_sign_up)
-      assertBadRequest(user1_sign_up_again)
-      assertOk(user1_mock_user1_copy_password_sign_up)
-      assertBadRequest(user1_mock_user1_copy_username_sign_up)
-
-      assertOk(user_1_sign_in)
-      assertOk(user_1_sign_in_again)
-      assertOk(user1_mock_user1_copy_password_sign_in)
+      assertOk(user1_sign_up) &&
+      assertBadRequest(user1_sign_up_again) &&
+      assertOk(user1_mock_user1_copy_password_sign_up) &&
+      assertBadRequest(user1_mock_user1_copy_username_sign_up) &&
+      assertOk(user_1_sign_in) &&
+      assertOk(user_1_sign_in_again) &&
+      assertOk(user1_mock_user1_copy_password_sign_in) &&
       assertBadRequest(user1_mock_user1_copy_username_sign_in)
     }).provideLayer(mockUserRepository())
   }
