@@ -6,10 +6,30 @@ services:
     ports:
       - "8082:8082"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain auth.AuthMain'"
-  routing:
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:8080"
+
+  routing1:
     build: .
     ports:
-      - "8081:8081"
+      - "8084:8081"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
+
+  routing2:
+    build: .
+    ports:
+      - "8085:8081"
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
+
+  routing3:
+    build: .
+    ports:
+      - "8086:8081"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain routing.RoutingMain'"
 
   images:
@@ -26,6 +46,7 @@ services:
       - "5433:5432"
     volumes:
       - database-data:/var/lib/postgresql/data/
+
   routedatabase:
     build:
       context: .
