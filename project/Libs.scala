@@ -5,6 +5,10 @@ object V {
   val zioHttp = "0.0.5"
   val zio_sql = "0.1.2"
 
+  val test = "3.2.15"
+  val zioTest = "2.0.15"
+  val zioTestMock = "1.0.0-RC9"
+
   val pureconfig = "0.17.3"
   val flyway = "9.16.0"
   val circe_version = "0.14.1"
@@ -17,6 +21,14 @@ object Libs {
     "dev.zio" %% "zio" % V.zio,
     "dev.zio" %% "zio-http" % V.zioHttp,
     "dev.zio" %% "zio-sql-postgres" % V.zio_sql
+  )
+
+  val test: List[ModuleID] = List(
+    "org.scalatest" %% "scalatest" % V.test % Test,
+    "dev.zio" %% "zio-test" % V.zioTest % Test,
+    "dev.zio" %% "zio-test-sbt" % V.zioTest % Test,
+    "dev.zio" %% "zio-test-magnolia" % V.zioTest % Test,
+    "dev.zio" %% "zio-mock" % V.zioTestMock % Test
   )
 
   val flyway: List[ModuleID] = List(

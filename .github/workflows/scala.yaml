@@ -1,0 +1,35 @@
+name: Scala CI
+on:
+  push:
+    branches:
+      - master
+      - task/07-ci/antonis-white
+      # В задании указана какая-то release ветка, но у нас таких нет
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Restore sbt-dependencies
+        #https://github.com/actions/cache/blob/main/examples.md#scala---sbt
+        id: cache-sbt-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+      - name: Run tests
+        run: sbt test
+      - name: Cache sbt-dependecies
+        id: cache-sbt-save
+        uses: actions/cache/save@v3
+        with:
+          path: ~/.sbt
+          key: ${{ steps.cache-sbt-restore.outputs.cache-primary-key }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Formatting
+        run: sbt scalafmtCheck test:scalafmtCheck

@@ -17,3 +17,6 @@ project/target/
 
 # Misc
 *.env
+
+#Images storage
+src/images/

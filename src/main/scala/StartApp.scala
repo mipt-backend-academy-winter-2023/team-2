@@ -8,11 +8,11 @@ object StartApp extends ZIOAppDefault {
     for {
 //      routing <- RoutingMain.run.fork
 //      auth <- AuthMain.run.fork
-        images <- ImagesMain.run.fork
+      images <- ImagesMain.run.fork
 //      helper <- HelperMain.run.fork
 //      _ <- routing.join
 //      _ <- auth.join
-        _ <- images.join
+      _ <- images.join
 //      _ <- helper.join
     } yield ()
 }

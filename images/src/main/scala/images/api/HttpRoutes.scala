@@ -25,14 +25,13 @@ object HttpRoutes {
             .run(ZSink.drain)
           fileSize <- req.body.asStream
             .run(ZSink.fromPath(path))
-        } yield fileSize).either
-          .map {
-            case Right(fileSize) if fileSize <= 10 * 1024 * 1024 => Response.ok
-            case _ =>
-              Files.deleteIfExists(imagePath)
-              ZIO.logInfo(s"Uploading image $nodeId went wrong")
-              Response.status(Status.BadRequest)
-          }
+        } yield fileSize).either.map {
+          case Right(fileSize) if fileSize <= 10 * 1024 * 1024 => Response.ok
+          case _ =>
+            Files.deleteIfExists(imagePath)
+            ZIO.logInfo(s"Uploading image $nodeId went wrong")
+            Response.status(Status.BadRequest)
+        }
 
       case req @ Method.GET -> !! / "download" / nodeId =>
         val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")

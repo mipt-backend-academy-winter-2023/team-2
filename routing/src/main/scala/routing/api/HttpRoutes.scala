@@ -4,9 +4,10 @@ import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
-
-import routing.repository.{NodeRepository, EdgeRepository}
+import routing.repository.{EdgeRepository, NodeRepository}
 import routing.utils.Graph
+
+import scala.util.Try
 
 object HttpRoutes {
   val app: HttpApp[NodeRepository with EdgeRepository, Response] =
@@ -20,7 +21,7 @@ object HttpRoutes {
                 .flatMap(_.headOption)
             )
             .tapError(_ => ZIO.logError("Provide fromId argument"))
-          fromId = fromIdStr.toInt
+          fromId <- ZIO.fromTry(Try(fromIdStr.toInt))
           toIdStr <- ZIO
             .fromOption(
               req.url.queryParams
@@ -28,7 +29,7 @@ object HttpRoutes {
                 .flatMap(_.headOption)
             )
             .tapError(_ => ZIO.logError("Provide toId argument"))
-          toId <- ZIO.succeed(toIdStr.toInt)
+          toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
         } yield (path)).either.map {
           case Right(route) => {
