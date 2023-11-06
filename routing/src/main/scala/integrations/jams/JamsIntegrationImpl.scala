@@ -18,7 +18,7 @@ class JamsIntegrationImpl(
         .get(url)
         .response(asJson[JamValue])
 
-    httpClient.send(request).map(x => {println(x); x}).flatMap(response => ZIO.fromEither(response.body))
+    httpClient.send(request).flatMap(response => ZIO.fromEither(response.body))
   }
 }
 
