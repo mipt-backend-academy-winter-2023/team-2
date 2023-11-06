@@ -44,15 +44,17 @@ object HttpRoutes {
             MyCircuitBreaker
               .run(JamsIntegration.getJam(fromId))
               .tap(jam => ZIO.succeed(fallbackJam.put(fromId, jam)))
-              .catchAll {
-                case CircuitBreakerOpen =>
-                  val data = fallbackJam.get(fromId)
-                  ZIO.logInfo(s"Get data from fallback $data") *> ZIO
-                    .fromOption(data)
-                case WrappedError(error) =>
-                  ZIO.logError(s"Get error from jams ${error.toString}") *>
-                    ZIO.fail(error)
-              }
+              .catchAll(error =>
+                fallbackJam.get(fromId) match {
+                  case Some(data) =>
+                    ZIO.logInfo(s"Get data from fallback $data") *> ZIO.succeed(
+                      data
+                    )
+                  case None =>
+                    ZIO.logError(s"Get error from jams ${error.toString}") *>
+                      ZIO.fail(error)
+                }
+              )
         } yield (path, jam)).either.map {
           case Right((route, jamValue)) => {
             Response.text(s"route: ${route}, jamValue: ${jamValue}")
