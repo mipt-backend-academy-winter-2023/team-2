@@ -16,7 +16,10 @@ import scala.util.Try
 object HttpRoutes {
   val fallbackJam: TrieMap[Int, JamValue] = TrieMap.empty
 
-  val app: HttpApp[NodeRepository with EdgeRepository with JamsIntegration with MyCircuitBreaker, Response] =
+  val app: HttpApp[
+    NodeRepository with EdgeRepository with JamsIntegration with MyCircuitBreaker,
+    Response
+  ] =
     Http.collectZIO[Request] {
       case req @ Method.GET -> !! / "route" / "find" =>
         (for {
@@ -44,7 +47,8 @@ object HttpRoutes {
               .catchAll {
                 case CircuitBreakerOpen =>
                   val data = fallbackJam.get(fromId)
-                  ZIO.logInfo(s"Get data from fallback $data") *> ZIO.fromOption(data)
+                  ZIO.logInfo(s"Get data from fallback $data") *> ZIO
+                    .fromOption(data)
                 case WrappedError(error) =>
                   ZIO.logError(s"Get error from jams ${error.toString}") *>
                     ZIO.fail(error)

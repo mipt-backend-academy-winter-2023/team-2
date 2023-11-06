@@ -3,8 +3,11 @@ import nl.vroste.rezilience.{CircuitBreaker, TrippingStrategy}
 import nl.vroste.rezilience.CircuitBreaker.{CircuitBreakerCallError, State}
 import zio._
 
-class MyCircuitBreakerImpl(circuitBreaker: CircuitBreaker[Any]) extends MyCircuitBreaker {
-  override def run[R, E, A](effect: ZIO[R, E, A]): ZIO[R with MyCircuitBreaker, CircuitBreakerCallError[E], A] =
+class MyCircuitBreakerImpl(circuitBreaker: CircuitBreaker[Any])
+    extends MyCircuitBreaker {
+  override def run[R, E, A](
+      effect: ZIO[R, E, A]
+  ): ZIO[R with MyCircuitBreaker, CircuitBreakerCallError[E], A] =
     circuitBreaker(effect)
 }
 
