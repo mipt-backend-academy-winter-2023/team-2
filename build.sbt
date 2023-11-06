@@ -30,6 +30,7 @@ lazy val auth = (project in file("auth"))
 lazy val routing = (project in file("routing"))
   .settings(
     name := "project-routing",
+    scalacOptions ++= Seq("-Ymacro-annotations"),
     libraryDependencies ++= Routing.dependencies
   )
 

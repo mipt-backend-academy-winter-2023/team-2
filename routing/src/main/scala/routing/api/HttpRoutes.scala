@@ -33,9 +33,9 @@ object HttpRoutes {
             .tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
-          jam <- ZIO.succeed(0)
-            //MyCircuitBreaker
-            //  .run(JamsIntegration.getJam(1))
+          jam <- //ZIO.succeed(0)
+            MyCircuitBreaker
+              .run(JamsIntegration.getJam(1))
               //.tap(jam => ZIO.succeed(fallbackDocuments.put(requestInfo.userId, doc)))
               /*.catchAll {
                 case CircuitBreakerOpen =>
