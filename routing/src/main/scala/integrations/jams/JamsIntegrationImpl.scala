@@ -10,15 +10,15 @@ class JamsIntegrationImpl(
 ) extends JamsIntegration {
   val baseUri: Uri = uri"http://jams:8080/jam/"
 
-  def getJam(id: Int): Task[Int] = {
+  def getJam(id: Int): Task[JamValue] = {
     val url = baseUri.addPath(s"$id")
 
     val request =
       basicRequest
         .get(url)
-        .response(asJson[Int])
+        .response(asJson[JamValue])
 
-    httpClient.send(request).flatMap(response => ZIO.fromEither(response.body))
+    httpClient.send(request).map(x => {println(x); x}).flatMap(response => ZIO.fromEither(response.body))
   }
 }
 
