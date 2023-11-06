@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   jams:
-    image: "mvxd/jams:pyapp"
+    image: "vovapolu/jams:0.1.0"
     ports:
       - "8080:8080"
 
