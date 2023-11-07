@@ -1,16 +1,22 @@
 package routing.api
 
+import routing.jams.JamService
+import routing.model.JamValue
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
 import routing.repository.{EdgeRepository, NodeRepository}
 import routing.utils.Graph
+import zio.http.SSLConfig.Data
 
+import scala.collection.concurrent.TrieMap
 import scala.util.Try
 
 object HttpRoutes {
-  val app: HttpApp[NodeRepository with EdgeRepository, Response] =
+  val jamFallback: TrieMap[String, JamValue] = TrieMap.empty
+
+  val app: HttpApp[NodeRepository with EdgeRepository with JamService, Response] =
     Http.collectZIO[Request] {
       case req @ Method.GET -> !! / "route" / "find" =>
         (for {
