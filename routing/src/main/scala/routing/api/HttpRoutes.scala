@@ -1,22 +1,25 @@
 package routing.api
 
+import routing.circuitbreaker.MyCircuitBreaker
 import routing.jams.JamService
 import routing.model.JamValue
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
-import zio.http.model.Status.NotImplemented
 import routing.repository.{EdgeRepository, NodeRepository}
-import routing.utils.Graph
-import zio.http.SSLConfig.Data
+import routing.utils.{Graph, GraphPath}
 
 import scala.collection.concurrent.TrieMap
+import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
 object HttpRoutes {
   val jamFallback: TrieMap[String, JamValue] = TrieMap.empty
 
-  val app: HttpApp[NodeRepository with EdgeRepository with JamService, Response] =
+  val app: HttpApp[
+    MyCircuitBreaker with NodeRepository with EdgeRepository with JamService,
+    Response
+  ] =
     Http.collectZIO[Request] {
       case req @ Method.GET -> !! / "route" / "find" =>
         (for {
@@ -37,7 +40,28 @@ object HttpRoutes {
             .tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
-        } yield (path)).either.map {
+          jams <- ZIO.foreach(path.nodes.toList)(node =>
+            MyCircuitBreaker
+              .run(JamService.get(node.id))
+              .tap(jam => ZIO.succeed(jamFallback.put(node.id.toString, jam)))
+              .catchAll(error =>
+                jamFallback.get(node.id.toString) match {
+                  case Some(data) =>
+                    ZIO.logInfo(s"Get data from fallback $data") *> ZIO.succeed(
+                      data
+                    )
+                  case None =>
+                    ZIO.logError(s"Get error from jams ${error.toString}") *>
+                      ZIO.fail(error)
+                }
+              )
+          )
+          pathWithJams <- ZIO.fromTry(
+            Try(
+              GraphPath.pathToString(path.nodes.toList, path.edges.toList, jams)
+            )
+          )
+        } yield pathWithJams).either.map {
           case Right(route) => {
             Response.text(route)
           }

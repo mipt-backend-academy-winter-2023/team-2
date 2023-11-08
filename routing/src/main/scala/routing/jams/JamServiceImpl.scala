@@ -1,5 +1,7 @@
 package routing.jams
 
+import io.circe.Decoder
+import io.circe.generic.semiauto.deriveDecoder
 import routing.model.JamValue
 import zio.{IO, Task, ZIO, ZLayer}
 import sttp.client3._
@@ -8,6 +10,7 @@ import sttp.model.Uri
 class JamServiceImpl(client: SttpBackend[Task, Any]) extends JamService {
   override def get(id: Int): Task[JamValue] = {
     val uri = Uri(s"http://jams:8080/jam/$id")
+    implicit val jamValueDecoder: Decoder[JamValue] = deriveDecoder
     val request = basicRequest.get(uri).response(asJson[JamValue])
 
     for {

@@ -1,6 +1,7 @@
 package routing
 
 import routing.api.HttpRoutes
+import routing.circuitbreaker.MyCircuitBreakerImpl
 import routing.config.ServiceConfig
 import routing.config.Config
 import routing.flyway.FlywayAdapter
@@ -31,6 +32,7 @@ object RoutingMain extends ZIOAppDefault {
       NodeRepositoryImpl.live,
       EdgeRepositoryImpl.live,
       JamServiceImpl.live,
+      MyCircuitBreakerImpl.live,
       Scope.default,
       HttpClientZioBackend.layer()
     )

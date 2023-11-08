@@ -1,22 +1,30 @@
 package routing
 
 import java.util.concurrent.TimeUnit
-import model.{Edge, Node}
+import model.{Edge, JamValue, Node}
 import io.circe.Json
 import io.circe.Encoder
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import routing.api.HttpRoutes
-import routing.utils.Graph
+import routing.utils.{Graph, GraphPath}
 import zio.http.{!!, Body, QueryParams, Request, Response, URL}
 import zio.{Chunk, Duration, ZIO, ZLayer}
 import zio.http.model.Status
 import zio._
 import zio.test.TestAspect.sequential
 import zio.test.{TestClock, ZIOSpecDefault, assertTrue, suite, test}
+
+import scala.collection.mutable.ListBuffer
 object RoutingSpec extends ZIOSpecDefault {
-  private def mockRepository(nodes: List[Node], edges: List[Edge]) =
-    ZLayer.succeed(new MockNodeRepository(nodes)) ++
-      ZLayer.succeed(new MockEdgeRepository(edges))
+  private def mockRepository(
+      nodes: List[Node],
+      edges: List[Edge],
+      jamQueries: Int = Int.MaxValue
+  ) =
+    ZLayer.succeed(new MockCircuitBreaker) ++
+      ZLayer.succeed(new MockNodeRepository(nodes)) ++
+      ZLayer.succeed(new MockEdgeRepository(edges)) ++
+      ZLayer.succeed(new MockJamService(jamQueries))
 
   private def findQuery(queryParams: Map[String, Chunk[String]]) =
     HttpRoutes.app.runZIO(
@@ -42,6 +50,9 @@ object RoutingSpec extends ZIOSpecDefault {
 
   private val allNodes = List(house1, intersection, house2)
   private val allEdges = List(street1, street2)
+
+  private val expected_1_1 = expectedPath(List(house1), List.empty)
+  private val expected_1_3 = expectedPath(allNodes, allEdges)
   private def shouldBeOk(response: Response) =
     response.status == Status.Ok
 
@@ -49,11 +60,12 @@ object RoutingSpec extends ZIOSpecDefault {
     response.status == Status.BadRequest
 
   private def checkPath(response: Response, path: String) = {
-    val prefix = "Body.fromAsciiString("
-    val suffix = " )"
-    val body = response.body.toString
-    body.length >= prefix.length + suffix.length &&
-    body.substring(prefix.length, body.length - suffix.length) == path
+    response.body.toString == s"Body.fromAsciiString($path)"
+  }
+
+  private def expectedPath(nodes: List[Node], edges: List[Edge]): String = {
+    val jams = nodes.map(node => MockJamService.hashJamValue(node.id))
+    GraphPath.pathToString(nodes, edges, jams)
   }
 
   def spec = suite("Routing tests")(
@@ -96,10 +108,6 @@ object RoutingSpec extends ZIOSpecDefault {
         path_1_1 <- find(1, 1)
         path_1_3 <- find(1, 3)
       } yield {
-        val expected_1_1 = "Route - House house1"
-        val expected_1_3 =
-          "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
-
         assertTrue(
           shouldBeOk(path_1_1)
             && shouldBeOk(path_1_3)
@@ -108,6 +116,38 @@ object RoutingSpec extends ZIOSpecDefault {
         )
       }).provideLayer(
         mockRepository(allNodes, allEdges)
+      )
+    },
+    test("Fallback should work correctly") {
+      HttpRoutes.jamFallback.clear()
+      (for {
+        _ <- Graph.loadGraph
+        path_1_3 <- find(1, 3)
+        path_1_3_repeat <- find(1, 3)
+      } yield {
+        assertTrue(
+          shouldBeOk(path_1_3)
+            && shouldBeOk(path_1_3_repeat)
+            && checkPath(path_1_3, expected_1_3)
+            && checkPath(path_1_3_repeat, expected_1_3)
+        )
+      }).provideLayer(
+        mockRepository(allNodes, allEdges, allNodes.length)
+      )
+    },
+    test("Should fail if server is down") {
+      HttpRoutes.jamFallback.clear()
+      (for {
+        _ <- Graph.loadGraph
+        path_1_1 <- find(1, 1)
+        path_1_3 <- find(1, 3)
+      } yield {
+        assertTrue(
+          shouldBeBad(path_1_1)
+            && shouldBeBad(path_1_3)
+        )
+      }).provideLayer(
+        mockRepository(allNodes, allEdges, 0)
       )
     }
   ) @@ sequential

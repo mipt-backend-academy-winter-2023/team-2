@@ -1,16 +1,53 @@
 package routing.utils
 
 import scala.collection.mutable.{
-  ListBuffer,
   ArrayBuffer,
+  ListBuffer,
   Map,
   PriorityQueue,
   Set
 }
-import routing.model.{Node, Edge}
-import routing.repository.{NodeRepository, EdgeRepository}
-
+import routing.model.{Edge, JamValue, Node}
+import routing.repository.{EdgeRepository, NodeRepository}
 import zio.ZIO
+
+import scala.collection.mutable
+
+case class GraphPath(var nodes: ListBuffer[Node], var edges: ListBuffer[Edge]) {
+  def addNode(node: Node): Unit = nodes += node
+  def addEdge(edge: Edge): Unit = edges += edge
+  def endPath(): Unit = {
+    nodes = nodes.reverse
+    edges = edges.reverse
+  }
+}
+
+object GraphPath {
+  def edgeToString(edge: Edge): String = s"Edge {name: ${edge.label}}"
+
+  def nodeToString(node: Node, jam: JamValue): String =
+    if (node.category == "0")
+      s"House {name: ${node.name}, jam_value: ${jam.jam_value}}"
+    else
+      s"Crossroad {name: ${node.name}, jam_value: ${jam.jam_value}"
+
+  def pathToString(
+      nodes: List[Node],
+      edges: List[Edge],
+      jams: List[JamValue]
+  ): String = {
+    val start = nodeToString(nodes.head, jams.head)
+    val end = nodes
+      .zip(jams)
+      .drop(1)
+      .zip(edges)
+      .map(state => {
+        val ((node, jam), edge) = state
+        s" - ${edgeToString(edge)} - ${nodeToString(node, jam)}"
+      })
+    start + end.mkString
+  }
+}
 
 object Graph {
   private var nodes: ArrayBuffer[Node] = new ArrayBuffer[Node]()
@@ -22,15 +59,6 @@ object Graph {
     new ArrayBuffer[ListBuffer[EdgeGraph]]()
 
   class BadNodeIndexException(s: String) extends Exception(s) {}
-
-  def addNodeToPath(path: String, node: NodeGraph): String =
-    if (node.node.category == "0")
-      s"- House ${node.node.name} $path"
-    else
-      s"- Crossroad ${node.node.name} $path"
-
-  def addEdgeToPath(path: String, edge: EdgeGraph): String =
-    s"- Edge ${edge.edge.label} $path"
 
   def loadGraph: ZIO[NodeRepository with EdgeRepository, Throwable, Unit] = {
     nodes.clear
@@ -89,7 +117,7 @@ object Graph {
     ZIO.succeed(())
   }
 
-  def astar(fromid: Integer, toid: Integer): ZIO[Any, Throwable, String] = {
+  def astar(fromid: Integer, toid: Integer): ZIO[Any, Throwable, GraphPath] = {
     // zero all additional data
     nodesForGraph = nodesForGraph.map { x =>
       NodeGraph(
@@ -107,7 +135,7 @@ object Graph {
     val fromIndex = nodesIdToIndex(fromid)
     val toIndex = nodesIdToIndex(toid)
     // do AStar
-    var path = ""
+    var path = GraphPath(ListBuffer.empty, ListBuffer.empty)
     var openSet = PriorityQueue.empty[NodeGraph]
     var closedSet = Set.empty[Int]
     nodesForGraph(fromIndex) = NodeGraph(
@@ -127,18 +155,17 @@ object Graph {
       if (current.index == toIndex) {
         wasFound = true
         // found finish, restore path
-        path = addNodeToPath(path, current)
+        path.addNode(current.node)
         while (current.prev != None) {
           current.prev match {
             case Some(x) => {
-              path = addEdgeToPath(path, x)
+              path.addEdge(x.edge)
               current = nodesForGraph(x.fromIndex)
             }
             case None =>
           }
-          path = addNodeToPath(path, current)
+          path.addNode(current.node)
         }
-        path = s"Route $path"
         openSet.clear
       } else {
         // continue, add neighbours
@@ -160,6 +187,7 @@ object Graph {
         })
       }
     }
+    path.endPath()
     if (wasFound)
       ZIO.succeed(path)
     else
