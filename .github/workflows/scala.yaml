@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - task/07-ci/antonis-white
+      - task/09-jams/antonis-white
       # В задании указана какая-то release ветка, но у нас таких нет
 
 jobs:
