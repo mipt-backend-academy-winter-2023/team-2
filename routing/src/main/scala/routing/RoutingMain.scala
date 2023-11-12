@@ -1,15 +1,17 @@
 package routing
 
 import routing.api.HttpRoutes
+import routing.circuitbreaker.MyCircuitBreakerImpl
 import routing.config.ServiceConfig
 import routing.config.Config
 import routing.flyway.FlywayAdapter
-import routing.repository.{NodeRepositoryImpl, EdgeRepositoryImpl}
+import routing.jams.JamsImpl
+import routing.repository.{EdgeRepositoryImpl, NodeRepositoryImpl}
 import zio.http.Server
 import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
-
 import routing.utils.Graph
+import sttp.client3.httpclient.zio.HttpClientZioBackend
 
 object RoutingMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
@@ -28,7 +30,11 @@ object RoutingMain extends ZIOAppDefault {
       ConnectionPool.live,
       Config.connectionPoolLive,
       NodeRepositoryImpl.live,
-      EdgeRepositoryImpl.live
+      EdgeRepositoryImpl.live,
+      JamsImpl.live,
+      MyCircuitBreakerImpl.live,
+      Scope.default,
+      HttpClientZioBackend.layer()
     )
   }
 }

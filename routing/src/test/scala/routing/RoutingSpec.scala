@@ -18,6 +18,15 @@ object RoutingSpec extends ZIOSpecDefault {
     ZLayer.succeed(new MockNodeRepository(nodes)) ++
       ZLayer.succeed(new MockEdgeRepository(edges))
 
+  private def mockCircuitBreaker =
+    ZLayer.succeed(new MockCircuitBreaker)
+
+  private def mockJams =
+    ZLayer.succeed(new MockJams)
+
+  private def mockAll(nodes: List[Node], edges: List[Edge]) =
+    mockRepository(nodes, edges) ++ mockCircuitBreaker ++ mockJams
+
   private def findQuery(queryParams: Map[String, Chunk[String]]) =
     HttpRoutes.app.runZIO(
       Request.get(
@@ -48,13 +57,8 @@ object RoutingSpec extends ZIOSpecDefault {
   private def shouldBeBad(response: Response) =
     response.status == Status.BadRequest
 
-  private def checkPath(response: Response, path: String) = {
-    val prefix = "Body.fromAsciiString("
-    val suffix = " )"
-    val body = response.body.toString
-    body.length >= prefix.length + suffix.length &&
-    body.substring(prefix.length, body.length - suffix.length) == path
-  }
+  private def checkPath(response: Response, path: String, jamValue: Int) =
+    response.body.toString == s"Body.fromAsciiString(route: $path , jamValue: JamValue($jamValue))"
 
   def spec = suite("Routing tests")(
     test("Should return BadRequest if queryParams are ill-formatted") {
@@ -71,7 +75,7 @@ object RoutingSpec extends ZIOSpecDefault {
             && shouldBeBad(no_toId)
         )
       }).provideLayer(
-        mockRepository(List.empty, List.empty)
+        mockAll(List.empty, List.empty)
       )
     },
     test("should fail if there is no path") {
@@ -87,7 +91,7 @@ object RoutingSpec extends ZIOSpecDefault {
             && shouldBeBad(endpointsAreNotConnected)
         )
       }).provideLayer(
-        mockRepository(allNodes, List.empty)
+        mockAll(allNodes, List.empty)
       )
     },
     test("Should correctly find path") {
@@ -96,18 +100,31 @@ object RoutingSpec extends ZIOSpecDefault {
         path_1_1 <- find(1, 1)
         path_1_3 <- find(1, 3)
       } yield {
+        assertTrue(
+          shouldBeOk(path_1_1)
+            && shouldBeOk(path_1_3)
+        )
+      }).provideLayer(
+        mockAll(allNodes, allEdges)
+      )
+    },
+    test("Fallback should work correctly") {
+      (for {
+        _ <- Graph.loadGraph
+        path_1_1 <- find(1, 1)
+        path_1_3 <- find(1, 3)
+      } yield {
         val expected_1_1 = "Route - House house1"
-        val expected_1_3 =
-          "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
+        val expected_1_3 = "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
 
         assertTrue(
           shouldBeOk(path_1_1)
             && shouldBeOk(path_1_3)
-            && checkPath(path_1_1, expected_1_1)
-            && checkPath(path_1_3, expected_1_3)
+            && checkPath(path_1_1, expected_1_1, 1)
+            && checkPath(path_1_3, expected_1_3, 1)
         )
       }).provideLayer(
-        mockRepository(allNodes, allEdges)
+        mockAll(allNodes, allEdges)
       )
     }
   ) @@ sequential

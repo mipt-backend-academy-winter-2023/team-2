@@ -13,6 +13,9 @@ object V {
   val flyway = "9.16.0"
   val circe_version = "0.14.1"
   val pdiJwt = "9.2.0"
+
+  val sttp = "3.9.0"
+  val rezilience = "0.9.3"
 }
 
 object Libs {
@@ -47,6 +50,15 @@ object Libs {
 
   val pdiJwt: List[ModuleID] = List(
     "com.github.jwt-scala" %% "jwt-core" % V.pdiJwt
+  )
+
+  val sttp: List[ModuleID] = List(
+    "com.softwaremill.sttp.client3" %% "zio" % V.sttp,
+    "com.softwaremill.sttp.client3" %% "circe" % V.sttp
+  )
+
+  val rezilience: List[ModuleID] = List(
+    "nl.vroste" %% "rezilience" % V.rezilience
   )
 
 }

@@ -10,7 +10,7 @@ services:
   routing-balancer:
     image: nginx
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
       - "./src/main/resources/nginx.conf:/etc/nginx/nginx.conf"
   routing1:
@@ -53,6 +53,11 @@ services:
       - "5434:5432"
     volumes:
       - database-data:/var/lib/postgresql/routedata/
+  jams:
+    image: "vovapolu/jams:0.1.0"
+    ports:
+      - "8080:8080"
+
 #  helper:
 #    build: .
 #    expose:
