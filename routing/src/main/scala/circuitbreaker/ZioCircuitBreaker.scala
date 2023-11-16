@@ -10,7 +10,7 @@ trait ZioCircuitBreaker {
 }
 
 object ZioCircuitBreaker {
-  override def run[R, E, A](
+  def run[R, E, A](
       effect: ZIO[R, E, A]
   ): ZIO[R with ZioCircuitBreaker, CircuitBreakerCallError[E], A] =
     ZIO.serviceWithZIO[ZioCircuitBreaker](_.run(effect))
