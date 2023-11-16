@@ -3,15 +3,15 @@ import nl.vroste.rezilience.{CircuitBreaker, TrippingStrategy}
 import nl.vroste.rezilience.CircuitBreaker.{CircuitBreakerCallError, State}
 import zio._
 
-class MyCircuitBreakerImpl(circuitBreaker: CircuitBreaker[Any])
-    extends MyCircuitBreaker {
+class ZioCircuitBreakerImpl(circuitBreaker: CircuitBreaker[Any])
+    extends ZioCircuitBreaker {
   override def run[R, E, A](
       effect: ZIO[R, E, A]
-  ): ZIO[R with MyCircuitBreaker, CircuitBreakerCallError[E], A] =
+  ): ZIO[R with ZioCircuitBreaker, CircuitBreakerCallError[E], A] =
     circuitBreaker(effect)
 }
 
-object MyCircuitBreakerImpl {
+object ZioCircuitBreakerImpl {
   val live = ZLayer.fromZIO {
     for {
       cb <- CircuitBreaker.make(
@@ -19,6 +19,6 @@ object MyCircuitBreakerImpl {
         zio.Schedule.exponential(10.second),
         onStateChange = (s: State) => ZIO.logInfo(s"State change to $s").ignore
       )
-    } yield new MyCircuitBreakerImpl(cb)
+    } yield new ZioCircuitBreakerImpl(cb)
   }
 }

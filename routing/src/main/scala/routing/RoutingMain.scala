@@ -12,7 +12,7 @@ import zio.sql.ConnectionPool
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 
 import integrations.jams.JamsIntegrationImpl
-import circuitbreaker.MyCircuitBreakerImpl
+import circuitbreaker.ZioCircuitBreakerImpl
 
 object RoutingMain extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
@@ -33,7 +33,7 @@ object RoutingMain extends ZIOAppDefault {
       NodeRepositoryImpl.live,
       EdgeRepositoryImpl.live,
       JamsIntegrationImpl.live,
-      MyCircuitBreakerImpl.live,
+      ZioCircuitBreakerImpl.live,
       Scope.default,
       HttpClientZioBackend.layer()
     )

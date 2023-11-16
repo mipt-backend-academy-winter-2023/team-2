@@ -8,7 +8,7 @@ import zio.http.model.Status.NotImplemented
 import routing.repository.{EdgeRepository, NodeRepository}
 import routing.utils.Graph
 import integrations.jams.{JamValue, JamsIntegration}
-import circuitbreaker.MyCircuitBreaker
+import circuitbreaker.ZioCircuitBreaker
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Try
@@ -17,7 +17,7 @@ object HttpRoutes {
   val fallbackJam: TrieMap[Int, JamValue] = TrieMap.empty
 
   val app: HttpApp[
-    NodeRepository with EdgeRepository with JamsIntegration with MyCircuitBreaker,
+    NodeRepository with EdgeRepository with JamsIntegration with ZioCircuitBreaker,
     Response
   ] =
     Http.collectZIO[Request] {
@@ -41,7 +41,7 @@ object HttpRoutes {
           toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
           jam <-
-            MyCircuitBreaker
+            ZioCircuitBreaker
               .run(JamsIntegration.getJam(fromId))
               .tap(jam => ZIO.succeed(fallbackJam.put(fromId, jam)))
               .catchAll(error =>
