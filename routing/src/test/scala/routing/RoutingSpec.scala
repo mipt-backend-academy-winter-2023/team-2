@@ -18,6 +18,12 @@ object RoutingSpec extends ZIOSpecDefault {
     ZLayer.succeed(new MockNodeRepository(nodes)) ++
       ZLayer.succeed(new MockEdgeRepository(edges))
 
+  private def mockCircuit =
+    ZLayer.succeed(new MockCircuit)
+
+  private def mockJams =
+    ZLayer.succeed(new MockJams)
+
   private def findQuery(queryParams: Map[String, Chunk[String]]) =
     HttpRoutes.app.runZIO(
       Request.get(
@@ -48,13 +54,7 @@ object RoutingSpec extends ZIOSpecDefault {
   private def shouldBeBad(response: Response) =
     response.status == Status.BadRequest
 
-  private def checkPath(response: Response, path: String) = {
-    val prefix = "Body.fromAsciiString("
-    val suffix = " )"
-    val body = response.body.toString
-    body.length >= prefix.length + suffix.length &&
-    body.substring(prefix.length, body.length - suffix.length) == path
-  }
+  private def checkPath(response: Response, path: String) = response.body.toString == path
 
   def spec = suite("Routing tests")(
     test("Should return BadRequest if queryParams are ill-formatted") {
@@ -71,7 +71,7 @@ object RoutingSpec extends ZIOSpecDefault {
             && shouldBeBad(no_toId)
         )
       }).provideLayer(
-        mockRepository(List.empty, List.empty)
+        mockRepository(List.empty, List.empty) ++ mockCircuit ++ mockJams
       )
     },
     test("should fail if there is no path") {
@@ -87,7 +87,7 @@ object RoutingSpec extends ZIOSpecDefault {
             && shouldBeBad(endpointsAreNotConnected)
         )
       }).provideLayer(
-        mockRepository(allNodes, List.empty)
+        mockRepository(allNodes, List.empty) ++ mockCircuit ++ mockJams
       )
     },
     test("Should correctly find path") {
@@ -96,9 +96,8 @@ object RoutingSpec extends ZIOSpecDefault {
         path_1_1 <- find(1, 1)
         path_1_3 <- find(1, 3)
       } yield {
-        val expected_1_1 = "Route - House house1"
-        val expected_1_3 =
-          "Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2"
+        val expected_1_1 = "Body.fromAsciiString(route: Route - House house1 , jamValue: JamValue(1))"
+        val expected_1_3 = "Body.fromAsciiString(route: Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2 , jamValue: JamValue(1))"
 
         assertTrue(
           shouldBeOk(path_1_1)
@@ -107,7 +106,7 @@ object RoutingSpec extends ZIOSpecDefault {
             && checkPath(path_1_3, expected_1_3)
         )
       }).provideLayer(
-        mockRepository(allNodes, allEdges)
+        mockRepository(allNodes, allEdges) ++ mockCircuit ++ mockJams
       )
     }
   ) @@ sequential

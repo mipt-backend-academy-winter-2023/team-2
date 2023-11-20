@@ -1,16 +1,25 @@
 package routing.api
 
+import nl.vroste.rezilience.CircuitBreaker.{CircuitBreakerOpen, WrappedError}
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
 import routing.repository.{EdgeRepository, NodeRepository}
 import routing.utils.Graph
+import integrations.jams.{JamValue, JamsIntegration}
+import circuitbreaker.ZioCircuitBreaker
 
+import scala.collection.concurrent.TrieMap
 import scala.util.Try
 
 object HttpRoutes {
-  val app: HttpApp[NodeRepository with EdgeRepository, Response] =
+  val fallbackJam: TrieMap[Int, JamValue] = TrieMap.empty
+
+  val app: HttpApp[
+    NodeRepository with EdgeRepository with JamsIntegration with ZioCircuitBreaker,
+    Response
+  ] =
     Http.collectZIO[Request] {
       case req @ Method.GET -> !! / "route" / "find" =>
         (for {
@@ -31,9 +40,24 @@ object HttpRoutes {
             .tapError(_ => ZIO.logError("Provide toId argument"))
           toId <- ZIO.fromTry(Try(toIdStr.toInt))
           path <- Graph.astar(fromId, toId)
-        } yield (path)).either.map {
-          case Right(route) => {
-            Response.text(route)
+          jam <-
+            ZioCircuitBreaker
+              .run(JamsIntegration.getJam(fromId))
+              .tap(jam => ZIO.succeed(fallbackJam.put(fromId, jam)))
+              .catchAll(error =>
+                fallbackJam.get(fromId) match {
+                  case Some(data) =>
+                    ZIO.logInfo(s"Get data from fallback $data") *> ZIO.succeed(
+                      data
+                    )
+                  case None =>
+                    ZIO.logError(s"Get error from jams ${error.toString}") *>
+                      ZIO.fail(error)
+                }
+              )
+        } yield (path, jam)).either.map {
+          case Right((route, jamValue)) => {
+            Response.text(s"route: ${route}, jamValue: ${jamValue}")
           }
           case Left(_) =>
             Response.status(Status.BadRequest)
