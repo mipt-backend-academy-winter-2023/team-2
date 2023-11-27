@@ -27,6 +27,13 @@ object HttpRoutes {
             .run(ZSink.drain)
           fileSize <- req.body.asStream
             .run(ZSink.fromPath(path))
+          _ <- Producer.produce[Any, String, String](
+            topic = "images",
+            key = "new",
+            value = s"$imagePath",
+            keySerializer = Serde.string,
+            valueSerializer = Serde.string
+          )
         } yield fileSize).either.map {
           case Right(fileSize) if fileSize <= 10 * 1024 * 1024 => Response.ok
           case _ =>
@@ -35,23 +42,9 @@ object HttpRoutes {
             Response.status(Status.BadRequest)
         }
 
-      case req @ Method.GET -> !! / "tmp" =>
-        (for {
-          _ <- Producer.produce[Any, Long, String](
-            topic = "random",
-            key = 1,
-            value = "123",
-            keySerializer = Serde.long,
-            valueSerializer = Serde.string
-          )
-        } yield ()).either.map { case _ =>
-          Response.status(Status.Ok)
-        }
-
       case req @ Method.GET -> !! / "download" / nodeId =>
         val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
         if (Files.exists(imagePath)) {
-          ZIO.succeed(Response.status(Status.NotFound))
           ZIO.succeed(
             Response(
               status = Status.Ok,

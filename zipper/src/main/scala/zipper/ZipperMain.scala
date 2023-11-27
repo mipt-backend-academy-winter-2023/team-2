@@ -9,7 +9,7 @@ import zio.stream.ZStream
 object ZipperMain extends ZIOAppDefault {
   val consumer: ZStream[Consumer, Throwable, Nothing] =
     Consumer
-      .plainStream(Subscription.topics("random"), Serde.long, Serde.string)
+      .plainStream(Subscription.topics("images"), Serde.string, Serde.string)
       .tap(r => Console.printLine(r.value))
       .map(_.offset)
       .aggregateAsync(Consumer.offsetBatches)
