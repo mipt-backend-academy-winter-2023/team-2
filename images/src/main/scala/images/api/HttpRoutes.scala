@@ -11,8 +11,14 @@ import zio.stream.{ZPipeline, ZSink}
 import java.io.File
 import java.nio.file.{Files, Paths}
 
+import zio._
+import zio.kafka.consumer._
+import zio.kafka.producer.{Producer, ProducerSettings}
+import zio.kafka.serde._
+import zio.stream.ZStream
+
 object HttpRoutes {
-  val app: HttpApp[Any, Response] =
+  val app: HttpApp[Producer with Consumer, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "upload" / nodeId =>
         val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
@@ -31,6 +37,19 @@ object HttpRoutes {
             Files.deleteIfExists(imagePath)
             ZIO.logInfo(s"Uploading image $nodeId went wrong")
             Response.status(Status.BadRequest)
+        }
+
+      case req @ Method.GET -> !! / "tmp" =>
+        (for {
+          _ <- Producer.produce[Any, Long, String](
+            topic = "random",
+            key = 1,
+            value = "123",
+            keySerializer = Serde.long,
+            valueSerializer = Serde.string
+          )
+        } yield ()).either.map {
+          case _ => Response.status(Status.Ok)
         }
 
       case req @ Method.GET -> !! / "download" / nodeId =>
