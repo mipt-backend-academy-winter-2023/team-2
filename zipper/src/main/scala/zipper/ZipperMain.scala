@@ -13,8 +13,9 @@ object ZipperMain extends ZIOAppDefault {
       .mapZIO(r =>
         (for {
           _ <- Console.printLine(r.value)
-          _ <- ZIO.succeed(5)
-        } yield r).tapError(e => ZIO.logInfo(s"Uploading image ${r.value} went wrong: $e"))
+        } yield r).tapError(e =>
+          ZIO.logInfo(s"Uploading image ${r.value} went wrong: $e")
+        )
       )
       .map(_.offset)
       .aggregateAsync(Consumer.offsetBatches)
