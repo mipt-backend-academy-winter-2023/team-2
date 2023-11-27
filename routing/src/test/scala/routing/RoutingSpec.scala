@@ -54,7 +54,8 @@ object RoutingSpec extends ZIOSpecDefault {
   private def shouldBeBad(response: Response) =
     response.status == Status.BadRequest
 
-  private def checkPath(response: Response, path: String) = response.body.toString == path
+  private def checkPath(response: Response, path: String) =
+    response.body.toString == path
 
   def spec = suite("Routing tests")(
     test("Should return BadRequest if queryParams are ill-formatted") {
@@ -96,8 +97,10 @@ object RoutingSpec extends ZIOSpecDefault {
         path_1_1 <- find(1, 1)
         path_1_3 <- find(1, 3)
       } yield {
-        val expected_1_1 = "Body.fromAsciiString(route: Route - House house1 , jamValue: JamValue(1))"
-        val expected_1_3 = "Body.fromAsciiString(route: Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2 , jamValue: JamValue(1))"
+        val expected_1_1 =
+          "Body.fromAsciiString(route: Route - House house1 , jamValue: JamValue(1))"
+        val expected_1_3 =
+          "Body.fromAsciiString(route: Route - House house1 - Edge street1 - Crossroad intersection - Edge street2 - House house2 , jamValue: JamValue(1))"
 
         assertTrue(
           shouldBeOk(path_1_1)

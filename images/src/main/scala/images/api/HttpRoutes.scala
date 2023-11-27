@@ -48,8 +48,8 @@ object HttpRoutes {
             keySerializer = Serde.long,
             valueSerializer = Serde.string
           )
-        } yield ()).either.map {
-          case _ => Response.status(Status.Ok)
+        } yield ()).either.map { case _ =>
+          Response.status(Status.Ok)
         }
 
       case req @ Method.GET -> !! / "download" / nodeId =>

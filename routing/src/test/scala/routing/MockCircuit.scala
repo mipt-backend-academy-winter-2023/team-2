@@ -1,7 +1,10 @@
 package routing
 
 import circuitbreaker.ZioCircuitBreaker
-import nl.vroste.rezilience.CircuitBreaker.{WrappedError, CircuitBreakerCallError}
+import nl.vroste.rezilience.CircuitBreaker.{
+  WrappedError,
+  CircuitBreakerCallError
+}
 import zio.ZIO
 
 final class MockCircuit extends ZioCircuitBreaker {

@@ -6,7 +6,6 @@ import zio.kafka.producer.{Producer, ProducerSettings}
 import zio.kafka.serde._
 import zio.stream.ZStream
 
-
 object ZipperMain extends ZIOAppDefault {
   val consumer: ZStream[Consumer, Throwable, Nothing] =
     Consumer
