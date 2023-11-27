@@ -6,19 +6,15 @@ import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
 import zio.http.model.Status.NotImplemented
+import zio.kafka.producer.{Producer, ProducerSettings}
+import zio.kafka.serde.Serde
 import zio.stream.{ZPipeline, ZSink}
 
 import java.io.File
 import java.nio.file.{Files, Paths}
 
-import zio._
-import zio.kafka.consumer._
-import zio.kafka.producer.{Producer, ProducerSettings}
-import zio.kafka.serde._
-import zio.stream.ZStream
-
 object HttpRoutes {
-  val app: HttpApp[Producer with Consumer, Response] =
+  val app: HttpApp[Producer, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "upload" / nodeId =>
         val imagePath = Paths.get(s"./src/images/$nodeId.jpeg")
