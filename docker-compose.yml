@@ -81,6 +81,11 @@ services:
     ports:
       - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain images.ImagesMain'"
+  zipper:
+    build: .
+    depends_on:
+      - kafka
+    entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain zipper.ZipperMain'"
 
   database:
     image: "postgres"
