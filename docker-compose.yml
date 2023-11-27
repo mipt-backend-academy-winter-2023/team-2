@@ -11,10 +11,8 @@ services:
     ports:
       - "9093:8081"
     depends_on:
-      kafka-images:
-        condition: service_started
-      kafka-zipper:
-        condition: service_started
+      - kafka-images
+      - kafka-zipper
     environment:
       SCHEMA_REGISTRY_DEBUG: true
       SCHEMA_REGISTRY_KAFKA_BROKERS: PLAINTEXT://kafka-images:9092,PLAINTEXT://kafka-zipper:9092
@@ -23,8 +21,7 @@ services:
     ports:
       - "9092:8080"
     depends_on:
-      kafka-schema-registry:
-        condition: service_started
+      - kafka-schema-registry
     environment:
       KAFKA_CLUSTERS_0_NAME: images_zipper
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-images:9092,kafka-zipper:9092
