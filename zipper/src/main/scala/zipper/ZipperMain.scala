@@ -10,7 +10,12 @@ object ZipperMain extends ZIOAppDefault {
   val consumer: ZStream[Consumer, Throwable, Nothing] =
     Consumer
       .plainStream(Subscription.topics("images"), Serde.string, Serde.string)
-      .tap(r => Console.printLine(r.value))
+      .mapZIO(r =>
+        (for {
+          _ <- Console.printLine(r.value)
+          _ <- ZIO.succeed(5)
+        } yield r).tapError(e => ZIO.logInfo(s"Uploading image ${r.value} went wrong: $e"))
+      )
       .map(_.offset)
       .aggregateAsync(Consumer.offsetBatches)
       .mapZIO(_.commit)

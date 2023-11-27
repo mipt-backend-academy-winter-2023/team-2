@@ -15,7 +15,7 @@ import zio.kafka.testkit.Kafka
 
 import java.io.File
 import scala.collection.mutable
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import scala.io.Source
 
 object ImagesSpec extends ZIOSpecDefault {
@@ -64,6 +64,7 @@ object ImagesSpec extends ZIOSpecDefault {
       })
     },
     test("Should upload light picture") {
+      Files.deleteIfExists(Paths.get(s"./src/images/$nodeId.jpeg"))
       (for {
         upload_light_picture <- upload(lightPicture, nodeId)
         //FYI:fails while uploading picture for node that already has a picture
