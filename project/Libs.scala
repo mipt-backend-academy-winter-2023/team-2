@@ -63,10 +63,6 @@ object Libs {
 
   val kafka = List(
     "dev.zio" %% "zio-kafka"         % "2.7.0",
-    "dev.zio" %% "zio-kafka-testkit" % "2.7.0" % Test,
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.1",
-    "org.apache.logging.log4j" % "log4j-core" % "2.13.3",
-    "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.13.3",
-    "com.sksamuel.avro4s" %% "avro4s-core" % "4.1.1"
+    "dev.zio" %% "zio-kafka-testkit" % "2.7.0" % Test
   )
 }
