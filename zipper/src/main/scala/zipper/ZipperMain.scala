@@ -19,7 +19,7 @@ object ZipperMain extends ZIOAppDefault {
   def consumerLayer =
     ZLayer.scoped(
       Consumer.make(
-        ConsumerSettings(List("kafka:9092")).withGroupId("group")
+        ConsumerSettings(List("kafka-zipper:9092")).withGroupId("group")
       )
     )
 

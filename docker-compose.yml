@@ -6,51 +6,65 @@ services:
     ports:
       - "8080:8080"
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui:v0.7.0
-    ports:
-      - "9092:8080"
-    depends_on:
-      kafka:
-        condition: service_started
-      kafka-schema-registry:
-        condition: service_started
-    environment:
-      KAFKA_CLUSTERS_0_NAME: baeldung
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://kafka-schema-registry:8081
-      DYNAMIC_CONFIG_ENABLED: 'true'
   kafka-schema-registry:
     image: bitnami/schema-registry:6.0
     ports:
       - "9093:8081"
     depends_on:
-      kafka:
+      kafka-images:
+        condition: service_started
+      kafka-zipper:
         condition: service_started
     environment:
       SCHEMA_REGISTRY_DEBUG: true
-      SCHEMA_REGISTRY_KAFKA_BROKERS: PLAINTEXT://kafka:9092
+      SCHEMA_REGISTRY_KAFKA_BROKERS: PLAINTEXT://kafka-images:9092,PLAINTEXT://kafka-zipper:9092
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.0
+    ports:
+      - "9092:8080"
+    depends_on:
+      kafka-schema-registry:
+        condition: service_started
+    environment:
+      KAFKA_CLUSTERS_0_NAME: images_zipper
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-images:9092,kafka-zipper:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://kafka-schema-registry:8081
+      DYNAMIC_CONFIG_ENABLED: 'true'
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
-      ZOOKEEPER_CLIENT_PORT: 9095
+      ZOOKEEPER_CLIENT_PORT: 9094
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "9095:9095"
-  kafka:
+      - "9094:9094"
+  kafka-images:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     ports:
-      - "9094:9094"
+      - "9095:9095"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9095
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-images:9092,PLAINTEXT_HOST://localhost:9095
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  kafka-zipper:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9096:9096"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-zipper:9092,PLAINTEXT_HOST://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
 
   auth:
     build: .
@@ -77,14 +91,14 @@ services:
   images:
     build: .
     depends_on:
-      - kafka
+      - kafka-images
     ports:
       - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain images.ImagesMain'"
   zipper:
     build: .
     depends_on:
-      - kafka
+      - kafka-zipper
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain zipper.ZipperMain'"
 
   database:

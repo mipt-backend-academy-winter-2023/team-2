@@ -11,7 +11,7 @@ object ImagesMain extends ZIOAppDefault {
   def producerLayer =
     ZLayer.scoped(
       Producer.make(
-        settings = ProducerSettings(List("kafka:9092"))
+        settings = ProducerSettings(List("kafka-images:9092"))
       )
     )
 
