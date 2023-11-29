@@ -29,6 +29,6 @@ object Dependencies {
 
   object Zipper extends Dependencies {
     override def dependencies: Seq[ModuleID] =
-      Seq(zio, kafka, scrimage).flatten
+      Seq(zio, kafka).flatten
   }
 }

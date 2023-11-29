@@ -1,10 +1,10 @@
 package zipper
 
-import com.sksamuel.scrimage.Image
-//import com.sksamuel.scrimage.ImmutableImage
-import com.sksamuel.scrimage.ScaleMethod.Bicubic
-import com.sksamuel.scrimage.nio.JpegWriter
-import java.io.{File, FileInputStream}
+import java.awt.Image
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
+import scala.math.sqrt
 import zio._
 import zio.kafka.consumer._
 import zio.kafka.producer.{Producer, ProducerSettings}
@@ -14,28 +14,29 @@ import zio.stream.ZStream
 //import scala.io.Source
 
 object ZipperMain extends ZIOAppDefault {
+  def resizeImage(name: String) = {
+    // read image
+    val file: File = new File(name)
+    val originalImage: BufferedImage = ImageIO.read(file)
+    // get new resolution
+    val scaleFactor: Float = sqrt(file.length / (3 * 1024 * 1024))
+    if (scaleFactor > 1) {
+      val newWidth = (originalImage.getWidth() / scaleFactor).toInt
+      val newHeight = (originalImage.getHeight() / scaleFactor).toInt
+      // resize image
+      val resized = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT)
+      val bufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB)
+      bufferedImage.getGraphics.drawImage(resized, 0, 0, null)
+      // write image
+      ImageIO.write(bufferedImage, "JPEG", file)
+    }
+  }
+
   val consumer: ZStream[Consumer, Throwable, Nothing] =
     Consumer
       .plainStream(Subscription.topics("images"), Serde.string, Serde.string)
       .map(r => {
-        println("\n\n\n\n\n\n\n\n\n")
-        println(r.value)
-        try {
-          val photo = new File(r.value)
-          println(photo.length)
-          //val image = Image.fromFile(photo)
-          //image.scale(0.3).forWriter(JpegWriter.Default).write(new File(r.value + "QQQ"));
-          //ImmutableImage.loader().fromFile(photo).scale(0.5, Bicubic) //.output(new File("/var/img/tmp.jpg"))(JpegWriter())
-          //ImmutableImage.loader().fromResource(r.value) //.scaleToWidth(640) //.writer(JpegWriter()).write("/var/img/scale_w400.jpg");
-          //val fileIterator = Source.fromFile(r.value).getLines()
-          /*val fileIterator = new FileInputStream(photo);
-          ImmutableImage.loader().fromStream(fileIterator)*/
-          Image.fromFile(photo).scale(0.3, Bicubic).output(photo)(JpegWriter.Default)
-        } catch {
-          case e => println(e)
-        }
-        println("Well... should be written?")
-        println("\n\n\n\n\n\n\n\n\n")
+        resizeImage(r.value)
         r
       })
       .map(_.offset)
