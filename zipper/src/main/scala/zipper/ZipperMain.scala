@@ -19,10 +19,10 @@ object ZipperMain extends ZIOAppDefault {
     val file: File = new File(name)
     val originalImage: BufferedImage = ImageIO.read(file)
     // get new resolution
-    val scaleFactor: Float = sqrt(file.length / (3 * 1024 * 1024))
+    val scaleFactor: Float = sqrt(file.length.toFloat / (3 * 1024 * 1024)).toFloat
     if (scaleFactor > 1) {
-      val newWidth = (originalImage.getWidth() / scaleFactor).toInt
-      val newHeight = (originalImage.getHeight() / scaleFactor).toInt
+      val newWidth: Int = (originalImage.getWidth() / scaleFactor).toInt
+      val newHeight: Int = (originalImage.getHeight() / scaleFactor).toInt
       // resize image
       val resized = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT)
       val bufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB)
