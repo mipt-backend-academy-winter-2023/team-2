@@ -1,7 +1,7 @@
 package zipper
 
 import com.sksamuel.scrimage.Image
-import com.sksamuel.scrimage.ImmutableImage
+//import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.ScaleMethod.Bicubic
 import com.sksamuel.scrimage.nio.JpegWriter
 import java.io.{File, FileInputStream}
@@ -28,8 +28,9 @@ object ZipperMain extends ZIOAppDefault {
           //ImmutableImage.loader().fromFile(photo).scale(0.5, Bicubic) //.output(new File("/var/img/tmp.jpg"))(JpegWriter())
           //ImmutableImage.loader().fromResource(r.value) //.scaleToWidth(640) //.writer(JpegWriter()).write("/var/img/scale_w400.jpg");
           //val fileIterator = Source.fromFile(r.value).getLines()
-          val fileIterator = new FileInputStream(photo);
-          ImmutableImage.loader().fromStream(fileIterator)
+          /*val fileIterator = new FileInputStream(photo);
+          ImmutableImage.loader().fromStream(fileIterator)*/
+          Image.fromFile(photo).scale(0.3, Bicubic).output(photo)(JpegWriter.Default)
         } catch {
           case e => println(e)
         }
