@@ -5,8 +5,10 @@ import io.circe.Json
 import io.circe.Encoder
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import zio.http.{!!, Body, Request, Response, URL}
-import zio.{Chunk, ZLayer}
+import zio.{Chunk, Scope, ZLayer}
 import zio.http.model.Status
+import zio.kafka.testkit.Kafka
+import zio.kafka.testkit.KafkaTestUtils.producer
 import zio.stream.{ZSink, ZStream}
 import zio.test.TestAspect.sequential
 import zio.test.{ZIOSpecDefault, assertTrue, suite, test}
@@ -47,12 +49,13 @@ object ImagesSpec extends ZIOSpecDefault {
   def shouldBeOk(response: Response) = response.status == Status.Ok
   def shouldBeBadRequest(response: Response) =
     response.status == Status.BadRequest
-  def spec = suite("Images tests")(
-    test("Shouldn't upload too heavy picture") {
+  def spec = (suite("Images tests")(
+    test("Should upload heavy picture") {
       (for {
         upload_heavy_picture <- upload(heavyPicture)
       } yield {
-        assertTrue(shouldBeBadRequest(upload_heavy_picture))
+        assertTrue(shouldBeOk(upload_heavy_picture))
+        //no way to check that uploaded file is correct due to third-party compression
       })
     },
     test("Shouldn't upload text file") {
@@ -82,5 +85,6 @@ object ImagesSpec extends ZIOSpecDefault {
         )
       })
     }
-  ) @@ sequential
+  ).provideSome[Kafka](producer)
+    .provideSome[Scope](Kafka.embedded)) @@ sequential
 }

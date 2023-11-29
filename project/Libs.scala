@@ -16,6 +16,10 @@ object V {
 
   val sttp = "3.9.0"
   val rezilience = "0.9.3"
+
+  val kafka = "2.7.0"
+
+  val scrimage = "2.1.7"
 }
 
 object Libs {
@@ -59,5 +63,14 @@ object Libs {
 
   val rezilience = List(
     "nl.vroste" %% "rezilience" % V.rezilience
+  )
+
+  val kafka = List(
+    "dev.zio" %% "zio-kafka" % V.kafka,
+    "dev.zio" %% "zio-kafka-testkit" % V.kafka % Test
+  )
+
+  val scrimage = List(
+    "com.sksamuel.scrimage" % "scrimage-core_2.10" % V.scrimage
   )
 }
