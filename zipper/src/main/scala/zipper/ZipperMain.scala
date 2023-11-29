@@ -1,5 +1,8 @@
 package zipper
 
+import com.sksamuel.scrimage.Image
+import com.sksamuel.scrimage.nio.JpegWriter
+import java.io.File
 import zio._
 import zio.kafka.consumer._
 import zio.kafka.producer.{Producer, ProducerSettings}
@@ -16,7 +19,10 @@ object ZipperMain extends ZIOAppDefault {
         } yield r).tapError(e =>
           ZIO.logInfo(s"Uploading image ${r.value} went wrong: $e")
         )
-      )
+      ).map(r => {
+        Image.fromFile(new File(r.value)).scale(0.3).forWriter(JpegWriter.Default).write(new File(r.value));
+        r
+      })
       .map(_.offset)
       .aggregateAsync(Consumer.offsetBatches)
       .mapZIO(_.commit)
