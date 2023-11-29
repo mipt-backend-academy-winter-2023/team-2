@@ -41,9 +41,9 @@ services:
       - zookeeper
     healthcheck:
       test: nc -z kafka-images 9092 || exit -1
-      interval: 2s
-      timeout: 2s
-      retries: 15
+      interval: 4s
+      timeout: 4s
+      retries: 16
     ports:
       - "9095:9095"
     environment:
@@ -59,9 +59,9 @@ services:
       - zookeeper
     healthcheck:
       test: nc -z kafka-zipper 9092 || exit -1
-      interval: 2s
-      timeout: 2s
-      retries: 15
+      interval: 4s
+      timeout: 4s
+      retries: 16
     ports:
       - "9096:9096"
     environment:
@@ -103,12 +103,16 @@ services:
     ports:
       - "8083:8083"
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain images.ImagesMain'"
+    volumes:
+      - image-storage:/var/img/
   zipper:
     build: .
     depends_on:
       kafka-zipper:
         condition: service_healthy
     entrypoint: bash -c "source ~/.sdkman/bin/sdkman-init.sh && sbt 'runMain zipper.ZipperMain'"
+    volumes:
+      - image-storage:/var/img/
 
   database:
     image: "postgres"
@@ -137,3 +141,4 @@ services:
 
 volumes:
   database-data:
+  image-storage:

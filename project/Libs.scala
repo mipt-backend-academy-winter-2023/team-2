@@ -68,6 +68,7 @@ object Libs {
   )
 
   val scrimage = List(
-    "com.kyleu" %% "scrimage-core" % V.scrimage
+    "com.kyleu" %% "scrimage-core" % V.scrimage,
+    "com.sksamuel.scrimage" %% "scrimage-scala" % "4.1.1"
   )
 }

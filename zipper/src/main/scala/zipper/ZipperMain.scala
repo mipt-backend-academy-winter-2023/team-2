@@ -1,6 +1,7 @@
 package zipper
 
 import com.sksamuel.scrimage.Image
+import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.JpegWriter
 import java.io.File
 import zio._
@@ -13,14 +14,17 @@ object ZipperMain extends ZIOAppDefault {
   val consumer: ZStream[Consumer, Throwable, Nothing] =
     Consumer
       .plainStream(Subscription.topics("images"), Serde.string, Serde.string)
-      .mapZIO(r =>
-        (for {
-          _ <- Console.printLine(r.value)
-        } yield r).tapError(e =>
-          ZIO.logInfo(s"Uploading image ${r.value} went wrong: $e")
-        )
-      ).map(r => {
-        Image.fromFile(new File(r.value)).scale(0.3).forWriter(JpegWriter.Default).write(new File(r.value));
+      .map(r => {
+        println(r.value)
+        try {
+          val photo = new File(r.value)
+          println(photo.length)
+          val image = Image.fromFile(photo)
+          //image.scale(0.3).forWriter(JpegWriter.Default).write(new File(r.value + "QQQ"));
+        } catch {
+          case e => println(e)
+        }
+        println("Well... should be written?")
         r
       })
       .map(_.offset)
