@@ -2,6 +2,8 @@ package images.api
 
 import images.utils.JpegValidation
 
+import pureconfig.ConfigSource
+import pureconfig.generic.auto.exportReader
 import zio.ZIO
 import zio.http._
 import zio.http.model.{Method, Status}
@@ -14,10 +16,13 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 object HttpRoutes {
+  case class ImageRoot(path: String)
+  val imageRoot: String = ConfigSource.default.at("app").at("image").loadOrThrow[ImageRoot].path
+
   val app: HttpApp[Producer, Response] =
     Http.collectZIO[Request] {
       case req @ Method.POST -> !! / "upload" / nodeId =>
-        val imagePath = Paths.get(s"/var/img/$nodeId.jpeg")
+        val imagePath = Paths.get(s"$imageRoot/$nodeId.jpeg")
         if (!Files.exists(imagePath.getParent))
           Files.createDirectories(imagePath.getParent)
         (for {
@@ -43,7 +48,7 @@ object HttpRoutes {
         }
 
       case req @ Method.GET -> !! / "download" / nodeId =>
-        val imagePath = Paths.get(s"/var/img/$nodeId.jpeg")
+        val imagePath = Paths.get(s"$imageRoot/$nodeId.jpeg")
         if (Files.exists(imagePath)) {
           ZIO.succeed(
             Response(
