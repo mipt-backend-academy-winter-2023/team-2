@@ -34,7 +34,6 @@ object HttpRoutes {
             .run(ZSink.fromPath(path))
           _ <- Producer.produce[Any, String, String](
             topic = "images",
-            key = "new",
             value = s"$imagePath",
             keySerializer = Serde.string,
             valueSerializer = Serde.string
