@@ -5,19 +5,20 @@ import io.circe.Json
 import io.circe.Encoder
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import zio.http.{!!, Body, Request, Response, URL}
-import zio.{Chunk, ZLayer}
+import zio.{Chunk, ZLayer, Scope}
 import zio.http.model.Status
 import zio.stream.{ZSink, ZStream}
 import zio.test.TestAspect.sequential
 import zio.test.{ZIOSpecDefault, assertTrue, suite, test}
+import zio.kafka.testkit.KafkaTestUtils.producer
+import zio.kafka.testkit.Kafka
 
 import java.io.File
 import scala.collection.mutable
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import scala.io.Source
 
 object ImagesSpec extends ZIOSpecDefault {
-
   def getFile(filename: String) =
     new File("./images/src/test/resources/" + filename)
 
@@ -47,7 +48,7 @@ object ImagesSpec extends ZIOSpecDefault {
   def shouldBeOk(response: Response) = response.status == Status.Ok
   def shouldBeBadRequest(response: Response) =
     response.status == Status.BadRequest
-  def spec = suite("Images tests")(
+  def spec = (suite("Images tests")(
     test("Shouldn't upload too heavy picture") {
       (for {
         upload_heavy_picture <- upload(heavyPicture)
@@ -63,6 +64,7 @@ object ImagesSpec extends ZIOSpecDefault {
       })
     },
     test("Should upload light picture") {
+      Files.deleteIfExists(Paths.get(s"./src/images/$nodeId.jpeg"))
       (for {
         upload_light_picture <- upload(lightPicture, nodeId)
         //FYI:fails while uploading picture for node that already has a picture
@@ -82,5 +84,6 @@ object ImagesSpec extends ZIOSpecDefault {
         )
       })
     }
-  ) @@ sequential
+  ).provideSome[Kafka](producer)
+    .provideSome[Scope](Kafka.embedded)) @@ sequential
 }

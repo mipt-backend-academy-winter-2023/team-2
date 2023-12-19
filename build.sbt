@@ -1,4 +1,4 @@
-import Dependencies.{Auth, Routing, Helper, Images}
+import Dependencies.{Auth, Routing, Helper, Images, Zipper}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -12,13 +12,15 @@ lazy val root = (project in file("."))
     auth,
     routing,
     helper,
-    images
+    images,
+    zipper
   )
   .dependsOn(
     auth,
     routing,
     helper,
-    images
+    images,
+    zipper
   )
 
 lazy val auth = (project in file("auth"))
@@ -44,4 +46,10 @@ lazy val images = (project in file("images"))
   .settings(
     name := "project-images",
     libraryDependencies ++= Images.dependencies
+  )
+
+lazy val zipper = (project in file("zipper"))
+  .settings(
+    name := "project-zipper",
+    libraryDependencies ++= Zipper.dependencies
   )

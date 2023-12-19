@@ -24,6 +24,11 @@ object Dependencies {
 
   object Images extends Dependencies {
     override def dependencies: Seq[ModuleID] =
-      Seq(zio, test, pureconfig, circe).flatten
+      Seq(zio, test, pureconfig, circe, kafka).flatten
+  }
+
+  object Zipper extends Dependencies {
+    override def dependencies: Seq[ModuleID] =
+      Seq(zio, kafka).flatten
   }
 }
